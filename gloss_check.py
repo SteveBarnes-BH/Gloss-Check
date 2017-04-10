@@ -4,7 +4,7 @@
   Purpose: Find the candidates for the glossary in a word document.
   Author: Steve Barnes --<StevenJohn.Barnes@ge.com>
   Created: 13/03/2017.
-  Updated: 31/03/2017.
+  Updated: 07/04/2017.
 
   Find the candidates for the glossary in a word document.
 """
@@ -36,12 +36,19 @@ except ImportError:
     GUI_OK = False
     print('GUI not available without wxPython installation')
 
-# Needs enchant to be installed.
+# Needs enchant to be installed for spell check.
 try:
     import enchant
 except ImportError:
     print('WARNING: No spell checker, install using: pip install pyenchant')
     enchant = None
+
+# Docx will allow tables to be parsed.
+try:
+    import docx
+except ImportError:
+    #print('WARNING: No docx so tables may be ommitted, install using: pip install docx')
+    docx = None
 
 try:
     import XXtextract
@@ -66,6 +73,7 @@ USAGE = """
 WRD_NS = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
 PARA = WRD_NS + 'p'
 TEXT = WRD_NS + 't'
+TABLE = WRD_NS + 'tbl'
 
 # See if we have a dictionary available
 if enchant is not None:
@@ -78,10 +86,10 @@ ARG_LIST = [
      {'type':int, "action":'store', "default":2, 'choices':range(2, 9),
       'help':"Minimum Length for a possible glossary entry"}),
     (['-u', '-U', '--upper_only'],
-     {'action':'store_false',
+     {'action':'store_true',
       'help':"Only consider all uppercase strings as candidates."}),
     (['-C', '-c', '--chars_only'],
-     {'action':'store_false',
+     {'action':'store_true',
       "help":"Exclude words with embedded numbers or symbols."}),
     (['-K', '-k', '--inc_camel',],
      {'action':'store_true',
@@ -122,11 +130,110 @@ def get_doc_wordlist(path, minacc=1):  #, extract_glossary=False):
         os.remove(temppath)
     doc2docx(path, temppath)
     # Create a temprory copy of the doc as docx
-    ok, cwordlist = get_docx_wordlist(temppath, minacc)
+    if docx is not None:
+        ok, cwordlist = get_docx2_wordlist(temppath, minacc)
+    else:
+        ok, cwordlist = get_docx_wordlist(temppath, minacc)
     if os.path.exists(temppath):
         os.remove(temppath)
         print('Removed', temppath)
     return ok, cwordlist
+
+def get_docx2_wordlist(path, minacc=1):
+    """
+    Use docx to get the word list.
+    """
+    if not os.path.splitext(path)[-1].lower() == '.docx':
+        return False, []
+    document = docx.Document(path)
+    assert isinstance(document, docx.document.Document)
+    wordlist = set()
+    texts = [p.text for p in document.paragraphs]
+    # Add the text from tables
+    for table in document.tables:
+        for col in table.columns:
+            texts.extend([cell.text for cell in col.cells])
+    if texts:
+        text = '\n'.join(texts)
+        wordlist.update(text.split())
+    cwordlist = clean_wordlist(wordlist, minacc)
+    for word in get_docx_table_text(document, minacc=minacc):
+        if word not in cwordlist:
+            cwordlist.append(word)
+    #document.lose()
+
+    return len(cwordlist) > 0, sorted(cwordlist)
+
+def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None):
+    """
+    Get the text from tables in a document supplied as a path or docx.
+    If tabno is None then all tables, if it is a simple number then that one and
+    if it is a list those.
+    The same for the columns specified by colno.
+    """
+    texts = []
+    if isinstance(path_or_docx, docx.document.Document):
+        doc = path_or_docx
+        #close_after = False
+    else:
+        doc = docx.Document(path_or_docx)
+        #close_after = True
+    if tabno is None:
+        tables = doc.tables
+    elif isinstance(tabno, int):
+        tables = [doc.tables[tabno]]
+    elif isinstance(tabno, list):
+        tables = [doc.tables[no] for no in tabno]
+    else:
+        raise ValueError('get_docx_table_text tabno must be one of None, int or list of ints')
+    if isinstance(colno, int):
+        cols = [colno]
+    elif isinstance(colno, list):
+        cols = colno
+    else:
+        cols = None
+    for table in tables:
+        if colno is None:
+            cols = range(len(table.columns))
+        for n in cols:
+            texts.extend([cell.text for cell in table.columns[n].cells])
+    #if close_after:
+        #doc.close()
+    wordlist = set()
+    if texts:
+        text = '\n'.join(texts)
+        wordlist.update(text.split())
+    cwordlist = clean_wordlist(wordlist, minacc)
+    return cwordlist
+
+def get_tree_table_wordlist(tree, minacc=1, tabno=None):
+    """
+    Get the wordlist from an XML tree.
+    If tabno is None then all tables, if it is a simple number then that one and
+    if it is a list those.
+    """
+    tables = []
+    indexes = []
+    texts = []
+    for n, tab in enumerate(tree.getiterator(TABLE)):
+        tables.append([node.text for node in tab.getiterator(TEXT)])
+        indexes.append(n)
+    if tabno is None:
+        req_tabs = indexes
+    elif isinstance(tabno, int):
+        req_tabs = [tabno]
+    elif isinstance(tabno, list) and all([isinstance(mem, int) for mem in tabno]):
+        req_tabs = tabno
+    else:
+        raise ValueError("tabno must be one of None, int, list of ints")
+    for n in req_tabs:
+        texts.extend(tables[n])
+    wordlist = set()
+    if texts:
+        text = '\n'.join(texts)
+        wordlist.update(text.split())
+    cwordlist = clean_wordlist(wordlist, minacc)
+    return cwordlist
 
 def get_docx_wordlist(path, minacc=1):  #, extract_glossary=False):
     """
@@ -149,8 +256,13 @@ def get_docx_wordlist(path, minacc=1):  #, extract_glossary=False):
             text = '\n'.join(texts)
             wordlist.update(text.split())
     cwordlist = clean_wordlist(wordlist, minacc)
+    tabwords = get_tree_table_wordlist(tree, minacc=minacc)
+    print(len(tabwords), 'words from tables.')
+    for word in tabwords:
+        if word not in cwordlist:
+            cwordlist.append(word)
 
-    return len(cwordlist) > 0, cwordlist
+    return len(cwordlist) > 0, sorted(cwordlist)
 
 def clean_wordlist(wordlist, minacc=1):
     """ Clean up a word list."""
@@ -162,7 +274,7 @@ def clean_wordlist(wordlist, minacc=1):
             validwords.add(cleanword)
     return list(validwords)
 
-def get_candidates_docx(
+def get_candidates(
         path, minlen=2, upper_only=True, chars_only=True, inc_cammel=False,
         existing_gloss=None, lang='en_GB'):
     """
@@ -179,6 +291,8 @@ def get_candidates_docx(
     success = False
     words = []
     method_dict = {'.docx': get_docx_wordlist, '.doc': get_doc_wordlist,}
+    if docx is not None:
+        method_dict['.docx'] = get_docx2_wordlist
     method = method_dict.get(os.path.splitext(path)[-1].lower())
     candiates = []
     unused = []
@@ -244,7 +358,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         #usage=USAGE,
         description=__doc__,
-        #version='0.1'
+        #version='0.4'
     )
     for argp, argv in ARG_LIST:
         parser.add_argument(*argp, **argv)
@@ -252,6 +366,8 @@ def parse_args():
         parser.add_argument(*argp, **argv)
 
     ops = parser.parse_args()
+    if enchant is None:
+        ops.lang = None
     #print(ops)
     return ops
 
@@ -265,7 +381,7 @@ def get_glossary(ops):
     if ops.glossary:
         print('Reading Glossary:')
         for item in ops.glossary:
-            if isinstance(item, str) or isinstance(item, unicode):
+            if isinstance(item, str) or sys.version_info[0] == 2 and isinstance(item, unicode):
                 infile = open(item)
             else:
                 infile = item
@@ -284,14 +400,14 @@ def process_docs(options, ext_gloss):
         print('Arg:', arg)
         for filename in glob.glob(arg):
             print('Processing', filename)
-            success, candidates, unused = get_candidates_docx(
+            success, candidates, unused = get_candidates(
                 filename, minlen=options.min_acc, upper_only=options.upper_only,
                 chars_only=options.chars_only, inc_cammel=options.inc_camel,
                 existing_gloss=ext_gloss, lang=options.lang)
             if not success:
                 print("ERROR: File is not a supported format or is corrupted/empty")
             else:
-                print('Candidates:')
+                print('%d Candidates:' % len(candidates))
                 smart_print(options, candidates)
                 if options.glossary_unused:
                     print("Possible Unused Glossary Enties:")
@@ -370,7 +486,7 @@ if GUI_OK:
 
             for name in filenames:
                 self.window.write_text('\nProcessing %s!' % name)
-                success, candidates, unused = get_candidates_docx(
+                success, candidates, unused = get_candidates(
                     name, minlen=options.min_acc, upper_only=options.upper_only,
                     chars_only=options.chars_only, inc_cammel=options.inc_camel,
                     existing_gloss=glossary, lang=options.lang)
