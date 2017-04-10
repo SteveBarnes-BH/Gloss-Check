@@ -24,13 +24,16 @@ def doc2docx(inpath, outpath=None):
         raise IOError('%s already exists' % outpath)
     print("Starting Word to convert %s to .docx" % inpath)
     word = win32.gencache.EnsureDispatch('Word.Application')
-    word.Visible = False
+    if len(word.Documents) == 0:  # Only hide word if there is nothing else open
+        word.Visible = False
     word.Documents.Open(path)
-    time.sleep(0.5)
+    time.sleep(0.3)
     word.ActiveDocument.SaveAs(outpath, FileFormat=12)
-    time.sleep(0.5)
+    time.sleep(0.3)
     word.ActiveDocument.Close()
-    #word.Quit()
+    if len(word.Documents) == 0:  # Only Quit word if there is nothing else open
+        word.Quit()
+
     print("Written as:", outpath)
 
 if __name__ == '__main__':
