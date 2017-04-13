@@ -39,6 +39,7 @@ except ImportError:
 # Needs enchant to be installed for spell check.
 try:
     import enchant
+    print("Using pyEnchant V%s" % enchant.__version__)
 except ImportError:
     print('WARNING: No spell checker, install using: pip install pyenchant')
     enchant = None
@@ -47,7 +48,7 @@ except ImportError:
 try:
     import docx
 except ImportError:
-    #print('WARNING: No docx so tables may be ommitted, install using: pip install docx')
+    print('WARNING: No docx so tables may be ommitted, install using: pip install docx')
     docx = None
 
 try:
@@ -57,6 +58,7 @@ except ImportError:
     USE_TEXTRACT = False
 
 from doc2docx import doc2docx
+import text_utls
 
 USAGE = """
   Usage: gloss_check [-UCK] [-g <glossary_txt_file>] INPUT [...]
@@ -114,7 +116,7 @@ def get_textract_wordlist(path, minacc=1):
     """
     try:
         wordlist = textract.process(path, 'utf-8').split()
-        result = (True, clean_wordlist(wordlist, minacc))
+        result = (True, text_utls.clean_wordlist(wordlist, minacc))
     except (WindowsError, textract.exceptions.ExtensionNotSupported):
         result = (False, [])
     return result
@@ -156,7 +158,7 @@ def get_docx2_wordlist(path, minacc=1):
     if texts:
         text = '\n'.join(texts)
         wordlist.update(text.split())
-    cwordlist = clean_wordlist(wordlist, minacc)
+    cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     for word in get_docx_table_text(document, minacc=minacc):
         if word not in cwordlist:
             cwordlist.append(word)
@@ -203,7 +205,7 @@ def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None):
     if texts:
         text = '\n'.join(texts)
         wordlist.update(text.split())
-    cwordlist = clean_wordlist(wordlist, minacc)
+    cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     return cwordlist
 
 def get_tree_table_wordlist(tree, minacc=1, tabno=None):
@@ -230,14 +232,15 @@ def get_tree_table_wordlist(tree, minacc=1, tabno=None):
         texts.extend(tables[n])
     wordlist = set()
     if texts:
-        text = '\n'.join(texts)
+        text = ''.join(texts)
         wordlist.update(text.split())
-    cwordlist = clean_wordlist(wordlist, minacc)
+    cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     return cwordlist
 
 def get_docx_wordlist(path, minacc=1):  #, extract_glossary=False):
     """
     Take the path of a docx file as argument, return the list of words.
+    Note that this doesn't work as well as get_docx2_wordlist
     """
     if not os.path.splitext(path)[-1].lower() == '.docx':
         return False, []
@@ -253,9 +256,12 @@ def get_docx_wordlist(path, minacc=1):  #, extract_glossary=False):
             for node in paragraph.getiterator(TEXT)
             if node.text]
         if texts:
-            text = '\n'.join(texts)
+            text = ''.join(texts)
             wordlist.update(text.split())
-    cwordlist = clean_wordlist(wordlist, minacc)
+            if any([w in wordlist for w in suspect]):
+                print('here')
+
+    cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     tabwords = get_tree_table_wordlist(tree, minacc=minacc)
     print(len(tabwords), 'words from tables.')
     for word in tabwords:
@@ -263,16 +269,6 @@ def get_docx_wordlist(path, minacc=1):  #, extract_glossary=False):
             cwordlist.append(word)
 
     return len(cwordlist) > 0, sorted(cwordlist)
-
-def clean_wordlist(wordlist, minacc=1):
-    """ Clean up a word list."""
-    validwords = set()
-    for word in wordlist:
-        #cleanword = word.decode('utf-8', 'ignore').strip(u'“”,\'"‘ ’()./:;')
-        cleanword = word.strip(u'“”,\'"‘ ’()./:;')
-        if len(cleanword) >= minacc:
-            validwords.add(cleanword)
-    return list(validwords)
 
 def get_candidates(
         path, minlen=2, upper_only=True, chars_only=True, inc_cammel=False,
@@ -388,7 +384,7 @@ def get_glossary(ops):
             print('   ', infile.name)
             ingloss.extend(infile.read().split())
             infile.close()
-    ingloss = clean_wordlist(ingloss)
+    ingloss = text_utls.clean_wordlist(ingloss)
     ingloss = get_candidates_from_list(
         ingloss, upper_only=ops.upper_only, chars_only=ops.chars_only,
         inc_cammel=ops.inc_camel, existing_gloss=[], lang=ops.lang)
@@ -408,22 +404,10 @@ def process_docs(options, ext_gloss):
                 print("ERROR: File is not a supported format or is corrupted/empty")
             else:
                 print('%d Candidates:' % len(candidates))
-                smart_print(options, candidates)
+                text_utls.smart_print(options, candidates)
                 if options.glossary_unused:
                     print("Possible Unused Glossary Enties:")
-                    smart_print(options, unused)
-
-def smart_print(options, entries):
-    """ Smart Printing."""
-    if options.oneper:
-        outtext = [u'\n'.join(entries)]
-    else:
-        outtext = textwrap.wrap(', '.join(entries), 78)
-    for output in outtext:
-        if sys.version_info.major < 3:
-            print(codecs.encode(output, 'ascii', 'backslashreplace'))
-        else:
-            print(output)
+                    text_utls.smart_print(options, unused)
 
 def cmdline_main():
     """ Run the program."""
@@ -449,7 +433,7 @@ if GUI_OK:
 
     def start_gui():
         """ Start in GUI mode."""
-        app = wx.App(redirect=True)
+        app = wx.App(redirect=False)
         frame = wx.Frame(None, -1, "Glossary Checker")
         win = GuiPanel(frame, sys.stdout)
         frame.Show(True)
