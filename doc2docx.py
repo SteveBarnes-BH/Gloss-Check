@@ -8,8 +8,9 @@
 from __future__ import print_function
 import sys
 import os
-import win32com.client as win32
 import time
+import win32com.client as win32
+
 
 def doc2docx(inpath, outpath=None):
     """ Convert a file at the specified location to docx."""

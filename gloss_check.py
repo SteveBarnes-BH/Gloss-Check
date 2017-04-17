@@ -39,7 +39,6 @@ except ImportError:
 # Needs enchant to be installed for spell check.
 try:
     import enchant
-    print("Using pyEnchant V%s" % enchant.__version__)
 except ImportError:
     print('WARNING: No spell checker, install using: pip install pyenchant')
     enchant = None
@@ -59,6 +58,8 @@ except ImportError:
 
 from doc2docx import doc2docx
 import text_utls
+
+__version__ = "0.6-alpha"
 
 USAGE = """
   Usage: gloss_check [-UCK] [-g <glossary_txt_file>] INPUT [...]
@@ -342,8 +343,11 @@ def parse_args():
         (['-G', '-g', '--glossary'],
          {'action':'append', "type":argparse.FileType('r'),
           "help":'An existing glossary to ignore'}),
+        (['-v', '--version'],
+         {'action':'store_true',
+          "help":'Show version information and exit.'}),
         (['DOCS'],
-         {"nargs":'+',
+         {"nargs":'*',
           'help':'Word document(s) to check, (Wildcards OK).'}),
     ]
     if len(LANGS):
@@ -364,9 +368,33 @@ def parse_args():
     ops = parser.parse_args()
     if enchant is None:
         ops.lang = None
+    if ops.version:
+        show_versions()
     #print(ops)
     return ops
 
+def show_versions():
+    """ Show version information and exit."""
+    print("Glossary Checker", __version__)
+    if hasattr(sys, 'frozen'):
+        print('Running Executable built from Python %s' % sys.version)
+    else:
+        print("Running under Python %s" % sys.version)
+    if USE_TEXTRACT:
+        print("Using: Textract!")
+    if GUI_OK:
+        print("Using: wx %s for GUI" % wx.version())
+    else:
+        print("No GUI! Try `pip install wxpython`")
+    if enchant is not None:
+        print("Using: pyEnchant V%s for spelling" % enchant.__version__)
+    else:
+        print("No Spell Checker! Try `pip install pyenchant`")
+    if docx is not None:
+        print("Using: python-docx %s for .DOCX parsing" % docx.__version__)
+    #print("Using: Win32Com %s for .DOC conversions" % doc2docx.)
+
+    sys.exit()
 
 def get_glossary(ops):
     """ Get predefined glossaries."""
@@ -377,7 +405,8 @@ def get_glossary(ops):
     if ops.glossary:
         print('Reading Glossary:')
         for item in ops.glossary:
-            if isinstance(item, str) or sys.version_info[0] == 2 and isinstance(item, unicode):
+            if isinstance(item, str) or sys.version_info[0] == 2 and isinstance(
+                item, unicode):
                 infile = open(item)
             else:
                 infile = item
@@ -608,11 +637,6 @@ if GUI_OK:
 
 
 if __name__ == '__main__':
-    print("Running under Python %s" % sys.version)
-    if USE_TEXTRACT:
-        print("Using: Textract!")
-    if GUI_OK:
-        print("Using: wx %s" % wx.version())
     if GUI_OK and len(sys.argv) < 2:
         start_gui()
     else:

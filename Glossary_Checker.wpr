@@ -1,0 +1,20 @@
+#!wing
+#!version=6.0
+##################################################################
+# Wing IDE project file                                          #
+##################################################################
+[project attributes]
+proj.directory-list = [{'dirloc': loc('.'),
+                        'excludes': [u'dist',
+                                     u'build'],
+                        'filter': '*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True}]
+proj.file-type = 'shared'
+proj.launch-config = {loc('doc2docx.py'): ('project',
+        (u'D:\\Users\\212303160\\Documents\\UMD\\Release\\UMD_H\\S39503-300-00-350_G.doc',
+         '')),
+                      loc('gloss_check.py'): ('project',
+        (u'D:\\Users\\212303160\\Documents\\UMD\\UMD_Docs_Updated\\S33333-000-00-018.docx',
+         ''))}
