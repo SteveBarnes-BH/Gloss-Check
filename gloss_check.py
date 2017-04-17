@@ -17,7 +17,7 @@ import glob
 import zipfile
 import textwrap
 import argparse
-import codecs
+#import codecs
 import time
 from collections import namedtuple
 import tempfile
@@ -51,15 +51,13 @@ except ImportError:
     docx = None
 
 try:
-    import XXtextract
-    USE_TEXTRACT = True
+    import textract
 except ImportError:
-    USE_TEXTRACT = False
+    textract = None
 
 from doc2docx import doc2docx
 import text_utls
-
-__version__ = "0.6-alpha"
+import version_info
 
 USAGE = """
   Usage: gloss_check [-UCK] [-g <glossary_txt_file>] INPUT [...]
@@ -127,20 +125,20 @@ def get_doc_wordlist(path, minacc=1):  #, extract_glossary=False):
     Take the path of a doc file as argument, return the list of words.
     """
     print("Need to convert .doc to temporary .docx")
-    td = tempfile.gettempdir()
-    temppath = os.path.join(td, 'gloss_check_temp.docx')
+    tempdir = tempfile.gettempdir()
+    temppath = os.path.join(tempdir, 'gloss_check_temp.docx')
     if os.path.exists(temppath):
         os.remove(temppath)
     doc2docx(path, temppath)
     # Create a temprory copy of the doc as docx
     if docx is not None:
-        ok, cwordlist = get_docx2_wordlist(temppath, minacc)
+        success, cwordlist = get_docx2_wordlist(temppath, minacc)
     else:
-        ok, cwordlist = get_docx_wordlist(temppath, minacc)
+        success, cwordlist = get_docx_tree_wordlist(temppath, minacc)
     if os.path.exists(temppath):
         os.remove(temppath)
         print('Removed', temppath)
-    return ok, cwordlist
+    return success, cwordlist
 
 def get_docx2_wordlist(path, minacc=1):
     """
@@ -167,20 +165,15 @@ def get_docx2_wordlist(path, minacc=1):
 
     return len(cwordlist) > 0, sorted(cwordlist)
 
-def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None):
-    """
-    Get the text from tables in a document supplied as a path or docx.
-    If tabno is None then all tables, if it is a simple number then that one and
-    if it is a list those.
-    The same for the columns specified by colno.
-    """
-    texts = []
+def docx_table_text_valid_args(path_or_docx, tabno=None, colno=None,
+                               excl_col=None):
+    """ Deal with possible arguments."""
+    col_nums = None
+    ignore = []
     if isinstance(path_or_docx, docx.document.Document):
         doc = path_or_docx
-        #close_after = False
     else:
         doc = docx.Document(path_or_docx)
-        #close_after = True
     if tabno is None:
         tables = doc.tables
     elif isinstance(tabno, int):
@@ -188,18 +181,42 @@ def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None):
     elif isinstance(tabno, list):
         tables = [doc.tables[no] for no in tabno]
     else:
-        raise ValueError('get_docx_table_text tabno must be one of None, int or list of ints')
+        raise ValueError(
+            'get_docx_table_text tabno must be one of None, int or list of ints')
     if isinstance(colno, int):
-        cols = [colno]
-    elif isinstance(colno, list):
-        cols = colno
-    else:
-        cols = None
+        col_nums = [colno]
+    elif isinstance(colno, list) and all([isinstance(item, int) for item in colno]):
+        col_nums = colno
+    elif colno is not None:
+        print('get_docx_table_text colno must be one of None, int or list of ints')
+        print('Ignoring', type(colno), colno)
+    if isinstance(excl_col, int):
+        ignore = []
+    elif isinstance(excl_col, list) and all([isinstance(item, int) for item in excl_col]):
+        ignore = excl_col
+    elif excl_col is not None:
+        print('get_docx_table_text excl_col must be int or list of ints')
+        print('Ignoring', type(excl_col), excl_col)
+
+    return (tables, col_nums, ignore)
+
+def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None,
+                        excl_col=None):
+    """
+    Get the text from tables in a document supplied as a path or docx.
+    If tabno is None then all tables, if it is a simple number then that one and
+    if it is a list those.
+    The same for the columns specified by colno.
+    """
+    texts = []
+    (tables, col_nums, ignore_cols) = docx_table_text_valid_args(
+        path_or_docx, tabno, colno, excl_col)
     for table in tables:
         if colno is None:
-            cols = range(len(table.columns))
-        for n in cols:
-            texts.extend([cell.text for cell in table.columns[n].cells])
+            col_nums = range(len(table.columns))
+        for col_number in col_nums:
+            if col_number not in ignore_cols:
+                texts.extend([cell.text for cell in table.columns[col_number].cells])
     #if close_after:
         #doc.close()
     wordlist = set()
@@ -218,9 +235,9 @@ def get_tree_table_wordlist(tree, minacc=1, tabno=None):
     tables = []
     indexes = []
     texts = []
-    for n, tab in enumerate(tree.getiterator(TABLE)):
+    for index, tab in enumerate(tree.getiterator(TABLE)):
         tables.append([node.text for node in tab.getiterator(TEXT)])
-        indexes.append(n)
+        indexes.append(index)
     if tabno is None:
         req_tabs = indexes
     elif isinstance(tabno, int):
@@ -229,8 +246,8 @@ def get_tree_table_wordlist(tree, minacc=1, tabno=None):
         req_tabs = tabno
     else:
         raise ValueError("tabno must be one of None, int, list of ints")
-    for n in req_tabs:
-        texts.extend(tables[n])
+    for index in req_tabs:
+        texts.extend(tables[index])
     wordlist = set()
     if texts:
         text = ''.join(texts)
@@ -238,7 +255,7 @@ def get_tree_table_wordlist(tree, minacc=1, tabno=None):
     cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     return cwordlist
 
-def get_docx_wordlist(path, minacc=1):  #, extract_glossary=False):
+def get_docx_tree_wordlist(path, minacc=1):  #, extract_glossary=False):
     """
     Take the path of a docx file as argument, return the list of words.
     Note that this doesn't work as well as get_docx2_wordlist
@@ -259,8 +276,6 @@ def get_docx_wordlist(path, minacc=1):  #, extract_glossary=False):
         if texts:
             text = ''.join(texts)
             wordlist.update(text.split())
-            if any([w in wordlist for w in suspect]):
-                print('here')
 
     cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     tabwords = get_tree_table_wordlist(tree, minacc=minacc)
@@ -287,16 +302,19 @@ def get_candidates(
     """
     success = False
     words = []
-    method_dict = {'.docx': get_docx_wordlist, '.doc': get_doc_wordlist,}
-    if docx is not None:
+    method_dict = {  # Dictionary of methods to use for specific file extensions
+        '.docx': get_docx_tree_wordlist,
+        '.doc': get_doc_wordlist,
+    }
+    if docx is not None:  # docx library available so override method
         method_dict['.docx'] = get_docx2_wordlist
     method = method_dict.get(os.path.splitext(path)[-1].lower())
     candiates = []
     unused = []
-    if USE_TEXTRACT:
-        success, words = get_textract_wordlist(path, minlen)
-    elif method is not None:
+    if method is not None:
         success, words = method(path, minlen)
+    elif textract is not None:
+        success, words = get_textract_wordlist(path, minlen)
     if success:
         candiates = get_candidates_from_list(
             words, upper_only, inc_cammel, chars_only, existing_gloss, lang)
@@ -369,32 +387,9 @@ def parse_args():
     if enchant is None:
         ops.lang = None
     if ops.version:
-        show_versions()
+        version_info.show_versions()
     #print(ops)
     return ops
-
-def show_versions():
-    """ Show version information and exit."""
-    print("Glossary Checker", __version__)
-    if hasattr(sys, 'frozen'):
-        print('Running Executable built from Python %s' % sys.version)
-    else:
-        print("Running under Python %s" % sys.version)
-    if USE_TEXTRACT:
-        print("Using: Textract!")
-    if GUI_OK:
-        print("Using: wx %s for GUI" % wx.version())
-    else:
-        print("No GUI! Try `pip install wxpython`")
-    if enchant is not None:
-        print("Using: pyEnchant V%s for spelling" % enchant.__version__)
-    else:
-        print("No Spell Checker! Try `pip install pyenchant`")
-    if docx is not None:
-        print("Using: python-docx %s for .DOCX parsing" % docx.__version__)
-    #print("Using: Win32Com %s for .DOC conversions" % doc2docx.)
-
-    sys.exit()
 
 def get_glossary(ops):
     """ Get predefined glossaries."""
@@ -406,7 +401,7 @@ def get_glossary(ops):
         print('Reading Glossary:')
         for item in ops.glossary:
             if isinstance(item, str) or sys.version_info[0] == 2 and isinstance(
-                item, unicode):
+                    item, unicode):
                 infile = open(item)
             else:
                 infile = item
@@ -507,14 +502,14 @@ if GUI_OK:
                     self.window.write_text(
                         " - ERROR: File is not supported or is corrupted/empty")
                 else:
-                    self.Smart_Write(
+                    self.doSmartWrite(
                         options, " %d Candidate Entries:\n" % len(candidates), candidates)
                     if options.glossary_unused:
-                        self.Smart_Write(
+                        self.doSmartWrite(
                             options, '%d Unused Glossary Items:\n' % len(unused), unused)
             return 0
 
-        def Smart_Write(self, options, title, items):
+        def doSmartWrite(self, options, title, items):
             """ Write the items based on the options."""
             self.window.write_text(title)
             if options.oneper:
@@ -532,7 +527,7 @@ if GUI_OK:
 
             self.droptgt = MyFileDropTarget(self, log)
             sizer = wx.BoxSizer(wx.VERTICAL)
-            sizer.Add(self.popultate_options(),
+            sizer.Add(self.populate_options(),
                       0, wx.EXPAND|wx.ALL, 1
                      )
 
@@ -548,7 +543,7 @@ if GUI_OK:
             sizer.SetSizeHints(self)
             self.SetAutoLayout(True)
 
-        def popultate_options(self):
+        def populate_options(self):
             """ Add the options as selected from the command line arguments."""
             subsizer = wx.FlexGridSizer(0, 5, 0, 2)
             cb_style = wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ALL
