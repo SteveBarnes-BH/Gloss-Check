@@ -13,6 +13,7 @@ from dulwich.repo import Repo
 import semantic_version as sv
 import subprocess
 import re
+import shutil
 import zipfile
 
 def get_latest_tag(repo):
@@ -81,6 +82,7 @@ def add_tag_git(ver, msg):
 
 def push_tag_git(ver):
     """ Add the changes to the the git repo."""
+    print('Pushing', ver)
     commands = ['git', 'push', 'origin', 'v%s' % ver]
     result = subprocess.check_call(commands, shell=True)
     return result
@@ -108,10 +110,10 @@ def zipdir(path, ziph):
 def zip_build(target, version):
     """ Zip the build."""
     outpath = './dist/%s_%s.zip' % (target, version)
-    zf = zipfile.ZipFile(outpath, 'w',
-                         zipfile.ZIP_DEFLATED)
-    zipdir('./dist/%s.zip' % target, zf)
-    zf.close()
+    shutil.make_archive(outpath, 'zip', './dist/%s' % target)
+    #zf = zipfile.ZipFile(outpath, 'w',
+                         #zipfile.ZIP_DEFLATED)
+    #zf.close()
     print("Zipped to:", outpath)
 
 def main():
