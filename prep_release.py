@@ -87,6 +87,13 @@ def push_tag_git(ver):
     result = subprocess.check_call(commands, shell=True)
     return result
 
+def push_git():
+    """ Add the changes to the the git repo."""
+    print('Pushing file changes')
+    commands = ['git', 'push']
+    result = subprocess.check_call(commands, shell=True)
+    return result
+
 def pyinstaller(target):
     """ Do the build."""
     commands = ['pyinstaller', '--clean', '-y', target]
@@ -125,11 +132,15 @@ def main():
     msg = raw_input("Release Message: ").strip()
     update_version_file(next_release, verfile)
     add_changes_git(msg)
+    try:
+        push_git()
+    except subprocess.CalledProcessError:
+        print("Push Changes FAILED!")
     add_tag_git(next_release, msg)
     try:
         push_tag_git(next_release)
     except subprocess.CalledProcessError:
-        print("Push FAILED!")
+        print("Push Tag FAILED!")
     if pyinstaller('gloss_check.py') == 0:
         zip_build('gloss_check', 'v%s' % next_release)
 
