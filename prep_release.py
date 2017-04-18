@@ -7,6 +7,7 @@
 """
 from __future__ import print_function
 import sys
+import os
 import datetime
 from dulwich.repo import Repo
 import semantic_version as sv
@@ -95,13 +96,18 @@ def zipdir(path, ziph):
     add a directory to a zipfile.
     ziph is zipfile handle.
     """
+    relroot = os.path.abspath(os.path.join(source_dir, os.pardir))
     for root, dirs, files in os.walk(path):
-        for file in files:
-            ziph.write(os.path.join(root, file))
+        zip.write(root, os.path.relpath(root, relroot))
+        for filename in files:
+            filepath = os.path.join(root, filename)
+            arcname = os.path.join(os.path.relpath(root, relroot), filename)
+            ziph.write(os.path.relpath(root, relroot), filepath)
 
-def zip_build(target):
+def zip_build(target, version):
     """ Zip the build."""
-    zf = zipfile.ZipFile('./dist/%s.zip' % target, 'w')
+    zf = zipfile.ZipFile('./dist/%s_%s.zip' % (target, version), 'w',
+                         zipfile.ZIP_DEFLATED)
     zipdir('./dist/%s.zip' % target, zf)
     zf.close()
 
@@ -120,7 +126,7 @@ def main():
     except subprocess.CalledProcessError:
         print("Push FAILED!")
     if pyinstaller('gloss_check.py') == 0:
-        zip_build('gloss_check')
+        zip_build('gloss_check', 'v%s' % next_release)
 
 if __name__ == '__main__':
     main()
