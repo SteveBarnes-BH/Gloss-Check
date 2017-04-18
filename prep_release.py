@@ -110,7 +110,7 @@ def zipdir(path, ziph):
 def zip_build(target, version):
     """ Zip the build."""
     outpath = './dist/%s_%s' % (target, version)
-    zipped_to = shutil.make_archive(outpath, 'zip', './dist/%s' % target, target)
+    zipped_to = shutil.make_archive(outpath, 'zip', './dist', target)
     #zf = zipfile.ZipFile(outpath, 'w',
                          #zipfile.ZIP_DEFLATED)
     #zf.close()
