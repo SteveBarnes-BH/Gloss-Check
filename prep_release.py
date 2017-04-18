@@ -96,7 +96,7 @@ def zipdir(path, ziph):
     add a directory to a zipfile.
     ziph is zipfile handle.
     """
-    relroot = os.path.abspath(os.path.join(source_dir, os.pardir))
+    relroot = os.path.abspath(os.path.join(path, os.pardir))
     for root, dirs, files in os.walk(path):
         zip.write(root, os.path.relpath(root, relroot))
         for filename in files:
