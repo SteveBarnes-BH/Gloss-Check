@@ -86,7 +86,7 @@ def push_tag_git(ver):
 
 def pyinstaller(target):
     """ Do the build."""
-    commands = ['pysintaller', '--clean', '-y', target]
+    commands = ['pyinstaller', '--clean', '-y', target]
     result = subprocess.check_call(commands, shell=True)
     return result
 
