@@ -116,7 +116,7 @@ def main():
     add_changes_git(msg)
     add_tag_git(next_release, msg)
     push_tag_git(next_release)
-    if pyinstaller('gloss_check.py'):
+    if pyinstaller('gloss_check.py') == 0:
         zip_build('gloss_check')
 
 if __name__ == '__main__':
