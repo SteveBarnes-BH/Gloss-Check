@@ -98,18 +98,21 @@ def zipdir(path, ziph):
     """
     relroot = os.path.abspath(os.path.join(path, os.pardir))
     for root, dirs, files in os.walk(path):
-        zip.write(root, os.path.relpath(root, relroot))
+        ziph.write(root, os.path.relpath(root, relroot))
         for filename in files:
             filepath = os.path.join(root, filename)
             arcname = os.path.join(os.path.relpath(root, relroot), filename)
             ziph.write(os.path.relpath(root, relroot), filepath)
+    ziph.close()
 
 def zip_build(target, version):
     """ Zip the build."""
-    zf = zipfile.ZipFile('./dist/%s_%s.zip' % (target, version), 'w',
+    outpath = './dist/%s_%s.zip' % (target, version)
+    zf = zipfile.ZipFile(outpath, 'w',
                          zipfile.ZIP_DEFLATED)
     zipdir('./dist/%s.zip' % target, zf)
     zf.close()
+    print("Zipped to:", outpath)
 
 def main():
     """ The main process."""
