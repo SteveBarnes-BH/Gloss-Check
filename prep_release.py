@@ -115,7 +115,10 @@ def main():
     update_version_file(next_release, verfile)
     add_changes_git(msg)
     add_tag_git(next_release, msg)
-    push_tag_git(next_release)
+    try:
+        push_tag_git(next_release)
+    except subprocess.CalledProcessError:
+        print("Push FAILED!")
     if pyinstaller('gloss_check.py') == 0:
         zip_build('gloss_check')
 
