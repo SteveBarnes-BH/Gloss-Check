@@ -52,7 +52,7 @@ def get_next_release(repo):
     print('Last Tagged Version', last_ver)
     rt = '?'
     prompt = "Release Type: %s: " % ', '.join(
-        ["%s=%s" % item for item in release_types.iteritems()])
+        sorted(["%s=%s" % item for item in release_types.iteritems()]))
     while rt not in release_types.keys():
         instr = raw_input(prompt)
         rt = instr[0].upper()
@@ -134,15 +134,20 @@ def main():
     add_changes_git(msg)
     try:
         push_git()
+        status = "Changes Pushed"
     except subprocess.CalledProcessError:
         print("Push Changes FAILED!")
+        status = "Changes NOT Pushed"
     add_tag_git(next_release, msg)
     try:
         push_tag_git(next_release)
+        status += ", Tag %s Pushed" % next_release
     except subprocess.CalledProcessError:
         print("Push Tag FAILED!")
+        status += ", Tag %s NOT Pushed" % next_release
     if pyinstaller('gloss_check.py') == 0:
         zip_build('gloss_check', 'v%s' % next_release)
+    print(status)
 
 if __name__ == '__main__':
     main()

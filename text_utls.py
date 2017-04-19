@@ -11,6 +11,10 @@ import textwrap
 import codecs
 import time
 try:
+    import win_unicode_console as wuc
+except ImportError:
+    wuc = None
+try:
     import enchant
 except ImportError:
     enchant = None
@@ -32,11 +36,16 @@ def smart_print(options, entries):
         outtext = [u'\n'.join(entries)]
     else:
         outtext = textwrap.wrap(', '.join(entries), 78)
-    for output in outtext:
-        if sys.version_info.major < 3 or sys.version_info.minor < 6:
-            print(codecs.encode(output, 'ascii', 'backslashreplace'))
-        else:
-            print(output)
+    if wuc:
+        wuc.enable()
+        print('\n'.join(outtext))
+        wuc.disable()
+    else:
+        for output in outtext:
+            if sys.version_info.major < 3 or sys.version_info.minor < 6:
+                print(codecs.encode(output, 'ascii', 'backslashreplace'))
+            else:
+                print(output)
 
 def get_glossary(ops):
     """ Get predefined glossaries."""

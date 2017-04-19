@@ -50,7 +50,7 @@ if GUI_OK:
             super(MyFileDropTarget, self).__init__()
             self.window = window
             self.log = log
-            self.options = {'glossary':[],}
+            self.options = {'glossary':[], 'lang':None,}
 
         ##
         def OnDropFiles(self, dummy_x, dummy_y, filenames):
