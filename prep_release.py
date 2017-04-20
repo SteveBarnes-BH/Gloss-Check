@@ -99,9 +99,9 @@ def pyinstaller(target):
     commands = [
         'pyinstaller', '--clean', '-y',  # Force Clean Build
         '-w',  # Windowed
+        target,
         # Add the tokenizer
-        '--add-data C:\Python35-32\Lib\site-packages\enchant\tokenize;enchant\tokenize',
-        target]
+        r'--add-data=C:\Python35-32\Lib\site-packages\enchant\tokenize;enchant\tokenize',]
     result = subprocess.check_call(commands, shell=True)
     return result
 
