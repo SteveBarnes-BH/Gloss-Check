@@ -96,7 +96,12 @@ def push_git():
 
 def pyinstaller(target):
     """ Do the build."""
-    commands = ['pyinstaller', '--clean', '-y', target]
+    commands = [
+        'pyinstaller', '--clean', '-y',  # Force Clean Build
+        '-w',  # Windowed
+        # Add the tokenizer
+        '--add-data C:\Python35-32\Lib\site-packages\enchant\tokenize;enchant\tokenize',
+        target]
     result = subprocess.check_call(commands, shell=True)
     return result
 

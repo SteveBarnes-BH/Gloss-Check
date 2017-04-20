@@ -256,7 +256,7 @@ if GUI_OK:
 if GUI_OK:
     def start_gui():
         """ Start in GUI mode."""
-        app = wx.App(redirect=False)
+        app = wx.App(redirect=True)
         frame = wx.Frame(None, -1, "Glossary Checker")
         win = GuiPanel(frame, sys.stdout)
         frame.Show(True)

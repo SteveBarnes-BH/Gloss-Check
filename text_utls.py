@@ -21,7 +21,8 @@ except ImportError:
     enchant = None
 
 try:
-    import enchant.tokenize as etock
+    from enchant import tokenize as etock
+    #import enchant.tokenize as etock
 except ImportError:
     etock = None
 
