@@ -114,8 +114,14 @@ def get_candidates_from_list(words, upper_only=True, inc_cammel=False,
 
 def tokenize(text):
     """ Split the text into words."""
-    if etock is None:
+    tokzr = None
+    if etock is not None:
+        try:
+            tokzr = etock.get_tokenizer()
+        except enchant.errors.TokenizerNotFoundError:
+            tokzr = None
+
+    if tokzr is None:
         return text.split()
     else:
-        tokzr = etock.get_tokenizer()
         return [word for (word, dummy) in tokzr(text)]
