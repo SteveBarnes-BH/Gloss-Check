@@ -51,6 +51,7 @@ if GUI_OK:
             self.window = window
             self.log = log
             self.options = {'glossary':[], 'lang':None,}
+            self.dropped_files = []
 
         ##
         def OnDropFiles(self, dummy_x, dummy_y, filenames):
@@ -62,6 +63,27 @@ if GUI_OK:
             self.window.set_insertion_point_end()
             self.window.write_text("\n%d file(s) dropped\n" %
                                    (len(filenames)))
+            self.dropped_files = filenames
+
+            self.process_files(filenames)
+            return 0
+
+        def reprocess(self):
+            """
+            Optionally reprocess on a change.
+            """
+            if self.options['autoupdate'] and len(self.dropped_files):
+                self.window.clear_text()
+                self.window.Refresh()
+                self.window.set_insertion_point_end()
+                self.window.write_text("\nReprocessing %d file(s)\n" %
+                                       (len(self.dropped_files)))
+                self.process_files(self.dropped_files)
+
+        def process_files(self, filenames):
+            """
+            Process a list of filenames.
+            """
             t_ops = namedtuple('options', self.options.keys())
             options = t_ops(**self.options)
             glossary = text_utls.get_glossary(options)
@@ -82,7 +104,6 @@ if GUI_OK:
                     if options.glossary_unused:
                         self.smart_write(
                             options, '%d Unused Glossary Items:\n' % len(unused), unused)
-            return 0
 
         def smart_write(self, options, title, items):
             """ Write the items based on the options."""
@@ -128,7 +149,13 @@ if GUI_OK:
             self.Bind(wx.EVT_BUTTON, self.on_load_gloss, ctrl)
             subsizer.Add(ctrl, 1, cb_style, 2)
 
-            for optnames, details in args.ARG_LIST:
+            arg_list = args.ARG_LIST
+            arg_list.append((["--Auto-Update"], {
+                'dest':'autoupdate', 'action':'store_true',
+                'help':'Automatically reprocess on settings change.',
+            }))
+
+            for optnames, details in arg_list:
                 assert isinstance(details, dict)
                 name = [n[2:] for n in optnames if n.startswith('--')][0]
                 name = name.replace('-', '_')
@@ -188,21 +215,28 @@ if GUI_OK:
                 )
             if dlg.ShowModal() == wx.ID_OK:
                 self.droptgt.options['glossary'] = dlg.GetPaths()
+                self.droptgt.reprocess()
             dlg.Destroy()
+
             #print(self.droptgt.options)
 
         def on_c_b(self, evt):
             """ Action a check box. """
             val = evt.EventObject.IsChecked()
-            self.droptgt.options[evt.EventObject.storeas] = val
-            #print(self.droptgt.options)
+            if val !=  self.droptgt.options[evt.EventObject.storeas]:
+                self.droptgt.options[evt.EventObject.storeas] = val
+                self.droptgt.reprocess()
+                #print(self.droptgt.options)
 
         def on_choose(self, evt):
             """ Action a check box """
             val = evt.EventObject.GetStringSelection()
             stortype = evt.EventObject.rettype
-            self.droptgt.options[evt.EventObject.storeas] = stortype(val)
-            #print(self.droptgt.options)
+            typedval = stortype(val)
+            if typedval != self.droptgt.options[evt.EventObject.storeas]:
+                self.droptgt.options[evt.EventObject.storeas] = typedval
+                self.droptgt.reprocess()
+                #print(self.droptgt.options)
 
         ##
         def write_text(self, text):

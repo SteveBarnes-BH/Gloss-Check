@@ -14,11 +14,16 @@ try:
     import win_unicode_console as wuc
 except ImportError:
     wuc = None
+
 try:
     import enchant
 except ImportError:
     enchant = None
 
+try:
+    import enchant.tokenize as etock
+except ImportError:
+    etock = None
 
 def clean_wordlist(wordlist, minacc=1):
     """ Clean up a word list."""
@@ -65,7 +70,7 @@ def get_glossary(ops):
             else:
                 infile = item
             print('   ', infile.name)
-            ingloss.extend(infile.read().split())
+            ingloss.extend(tokenize(infile.read()))
             infile.close()
     ingloss = clean_wordlist(ingloss)
     ingloss = get_candidates_from_list(
@@ -106,3 +111,11 @@ def get_candidates_from_list(words, upper_only=True, inc_cammel=False,
         words = [w for w in words if w not in existing_gloss]
 
     return sorted(words)
+
+def tokenize(text):
+    """ Split the text into words."""
+    if etock is None:
+        return text.split()
+    else:
+        tokzr = etock.get_tokenizer()
+        return [word for (word, dummy) in tokzr(text)]

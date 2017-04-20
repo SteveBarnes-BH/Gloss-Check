@@ -12,6 +12,8 @@ try:
     import docx
 except ImportError:
     docx = None
+
+
 import text_utls
 
 def get_docx2_wordlist(path, minacc=1):
@@ -30,7 +32,7 @@ def get_docx2_wordlist(path, minacc=1):
             texts.extend([cell.text for cell in col.cells])
     if texts:
         text = '\n'.join(texts)
-        wordlist.update(text.split())
+        wordlist.update(text_utls.tokenize(text))
     cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     for word in get_docx_table_text(document, minacc=minacc):
         if word not in cwordlist:
@@ -97,7 +99,7 @@ def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None,
     wordlist = set()
     if texts:
         text = '\n'.join(texts)
-        wordlist.update(text.split())
+        wordlist.update(text_utls.tokenize(text))
     cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     return cwordlist
 
