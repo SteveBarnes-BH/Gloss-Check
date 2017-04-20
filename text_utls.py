@@ -87,7 +87,7 @@ def get_candidates_from_list(words, upper_only=True, inc_cammel=False,
         existing_gloss: An existing glossary to ignore.
         lang: Language code to spell check against.
     """
-    if enchant is not None:
+    if enchant is not None and lang.upper() != "NONE":
         try:
             chker = enchant.Dict(lang)
             words = [w for w in words if len(w) and not chker.check(w)]  # Not in dictionary

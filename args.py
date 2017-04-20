@@ -33,13 +33,13 @@ ARG_LIST = [
 ]
 
 
-LANGS = []
+LANGS = ['NONE']
 # See if we have a dictionary available
 if enchant is not None:
-    LANGS = enchant.list_languages()
+    LANGS.extend(enchant.list_languages())
 
 # Command Line Arguments
-if len(LANGS): # Add the language option if we have a dictionary available
+if len(LANGS) > 1: # Add the language option if we have a dictionary available
     ARG_LIST.insert(0, (['-L', '-l', '--lang'],
                         {'action':'store', 'choices':LANGS, 'default':'en_GB',
                          "help":'Language code to spell check against'}),
