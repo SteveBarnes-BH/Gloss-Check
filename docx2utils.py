@@ -23,23 +23,54 @@ def get_docx2_wordlist(path, options):
         return False, []
     document = docx.Document(path)
     assert isinstance(document, docx.document.Document)
+    ignore_col1 = []
+    poss_entries = []
     wordlist = set()
     texts = [p.text for p in document.paragraphs]
-    # Add the text from tables
-    #for table in document.tables:
-        #for col in table.columns:
-            #texts.extend([cell.text for cell in col.cells])
     if texts:
         text = '\n'.join(texts)
         wordlist.update(text_utls.tokenize(text, options))
     cwordlist = text_utls.clean_wordlist(wordlist, options.min_acc)
-    for word in get_docx_table_text(document, options=options):
+
+    if options.table_gloss:
+        poss_entries, ignore_col1 = docx_get_table_gloss(path, options=options)
+    # Get the table text from non-glossary tables
+    non_gloss = [x for x in range(len(document.tables)) if x not in ignore_col1]
+    for word in get_docx_table_text(document, non_gloss, options=options):
         if word not in cwordlist:
             cwordlist.append(word)
-    #document.close()
+    # Then from the other colums of tables
+    for word in get_docx_table_text(document, ignore_col1, excl_col=1, options=options):
+        if word not in cwordlist:
+            cwordlist.append(word)
 
-    return len(cwordlist) > 0, sorted(cwordlist, key=lambda s: s.lower())
+    return (len(cwordlist) > 0, sorted(cwordlist, key=lambda s: s.lower()),
+            sorted(poss_entries, key=lambda s: s.lower()))
 
+def docx_get_table_gloss(path_or_docx, whitelist=None, options=None):
+    """ Locate and parse tables that look like glossaries."""
+    poss_entries = []
+    ignore_col1 = []
+    print("Searching for tables that might be glossaries.")
+    (tables, col_nums, ignore_cols) = docx_table_text_valid_args(
+        path_or_docx, None, 0, None)
+    for index, table in enumerate(tables):
+        coltxt = []
+        for cell in table.columns[0].cells:
+            coltxt.extend(text_utls.tokenize(cell.text, options))
+        words = list(set(coltxt))
+        candidates = text_utls.get_candidates_from_list(
+            words, extern_gloss=whitelist, options=options)
+        #print('Table %d has %d possible items of %d' % (
+            #index, len(candidates), len(coltxt)))
+        #print(', '.join(candidates))
+        if len(candidates) * 100.0 / len(coltxt) > 50:  # %age possible
+            print('Table %d has %d possible items of %d' % (
+                index, len(candidates), len(coltxt)))
+            print('Adding to assumed glossary:', ', '.join(candidates))
+            ignore_col1.append(index)
+            poss_entries.extend(candidates)
+    return poss_entries, ignore_col1
 
 def docx_table_text_valid_args(path_or_docx, tabno=None, colno=None,
                                excl_col=None):

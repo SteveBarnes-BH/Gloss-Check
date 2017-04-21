@@ -33,9 +33,12 @@ ARG_LIST = [
     (['-o', '-1', '--one-per-line'],
      {'action':'store_true', "dest":'oneper',
       "help":"Display in a single column"}),
+    (['-T', '-t', '--table_gloss',],
+     {'action':'store_true',
+      "help":'Search each document for possible glossary table.'}),
     (['-gu', '-GU', '--glossary-unused'],
      {'action':'store_true',
-      "help":"Show unused entries from the glossary."}),
+      "help":"Show unused entries from the glossary, (document glossary with -t)."}),
 ]
 
 

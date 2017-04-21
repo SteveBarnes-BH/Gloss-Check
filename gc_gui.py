@@ -137,6 +137,15 @@ if GUI_OK:
             sizer.Fit(self)
             sizer.SetSizeHints(self)
             self.SetAutoLayout(True)
+            self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+
+        def OnClose(self, dummy_evt):
+            """ Remove any stdout windows."""
+            wx.GetApp().RestoreStdio()
+            #print("Delete any stdout window!")
+            OPW = wx.FindWindowByLabel('wxPython: stdout/stderr')
+            if not None == OPW:
+                OPW.Destroy()
 
         def populate_options(self):
             """ Add the options as selected from the command line arguments."""
@@ -256,7 +265,7 @@ if GUI_OK:
     def start_gui():
         """ Start in GUI mode."""
         app = wx.App(redirect=True)
-        frame = wx.Frame(None, -1, "Glossary Checker")
+        frame = wx.Frame(None, -1, "Glossary Checker", size=(600, 400))
         win = GuiPanel(frame, sys.stdout)
         frame.Show(True)
         app.MainLoop()

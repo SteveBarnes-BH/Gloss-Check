@@ -42,6 +42,7 @@ def get_doc_wordlist(path, options):  #, extract_glossary=False):
     """
     Take the path of a doc file as argument, return the list of words.
     """
+    docgloss = []
     print("Need to convert .doc to temporary .docx")
     tempdir = tempfile.gettempdir()
     temppath = os.path.join(tempdir, 'gloss_check_temp.docx')
@@ -50,13 +51,13 @@ def get_doc_wordlist(path, options):  #, extract_glossary=False):
     doc2docx.doc2docx(path, temppath)
     # Create a temprory copy of the doc as docx
     if docx is not None:
-        success, cwordlist = docx2utils.get_docx2_wordlist(temppath, options)
+        success, cwordlist, docgloss = docx2utils.get_docx2_wordlist(temppath, options)
     else:
-        success, cwordlist = xmltree_utils.get_docx_tree_wordlist(temppath, options)
+        success, cwordlist, docgloss = xmltree_utils.get_docx_tree_wordlist(temppath, options)
     if os.path.exists(temppath):
         os.remove(temppath)
         print('Removed', temppath)
-    return success, cwordlist
+    return success, cwordlist, docgloss
 
 def get_candidates(path, extern_gloss=None, options=None):
     """
@@ -73,6 +74,7 @@ def get_candidates(path, extern_gloss=None, options=None):
     """
     success = False
     words = []
+    doc_gloss = []
     method_dict = {  # Dictionary of methods to use for specific file extensions
         '.docx': xmltree_utils.get_docx_tree_wordlist,
         '.doc': get_doc_wordlist,
@@ -83,20 +85,27 @@ def get_candidates(path, extern_gloss=None, options=None):
     candiates = []
     unused = []
     if method is not None:
-        success, words = method(path, options)
+        success, words, doc_gloss = method(path, options)
     elif textract is not None:
         success, words = get_textract_wordlist(path, options.min_acc)
     if success:
         candiates = text_utls.get_candidates_from_list(
-            words, extern_gloss, options)
-        unused = [item for item in extern_gloss if not item in words]
+            words, extern_gloss, doc_gloss, options)
+        if options.glossary_unused:
+            if options.table_gloss:
+                unused = [item for item in doc_gloss if not item in words]
+            else:
+                unused = [item for item in extern_gloss if not item in words]
     return (success, candiates, unused)
 
 def process_docs(options, ext_gloss):
     """ Process the documents."""
     for arg in options.DOCS:
         print('Document/Wildcard:', arg)
-        filelist = glob.glob(arg)
+        if os.path.isfile(arg):
+            filelist = [arg, ]
+        else:
+            filelist = glob.glob(arg)
         if len(filelist) == 0:
             print("ERROR: No files match", arg)
         for filename in filelist:

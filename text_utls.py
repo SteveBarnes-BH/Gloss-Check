@@ -43,13 +43,14 @@ def smart_print(options, entries):
         outtext = [u'\n'.join(entries)]
     else:
         outtext = textwrap.wrap(', '.join(entries), 78)
-    if wuc:
+    if wuc:  # Use win_unicode_console if have have it?
         wuc.enable()
         print('\n'.join(outtext))
         wuc.disable()
     else:
         for output in outtext:
-            if sys.version_info.major < 3 or sys.version_info.minor < 6:
+            # Otherwise we need to
+            if sys.version_info < (3, 5):
                 print(codecs.encode(output, 'ascii', 'backslashreplace'))
             else:
                 print(output)
@@ -75,19 +76,20 @@ def get_glossary(ops):
             ingloss.extend(tokenize(infile.read(), ops))
             infile.close()
     ingloss = clean_wordlist(ingloss)
-    ingloss = get_candidates_from_list(ingloss, existing_gloss=[], options=ops)
+    ingloss = get_candidates_from_list(ingloss, extern_gloss=[], options=ops)
     return ingloss
 
-def get_candidates_from_list(words, existing_gloss=None, options=None):
+def get_candidates_from_list(words, extern_gloss=None, doc_gloss=None, options=None):
     """
     Get glossary candidates from a word list.
 
     Params:
         words: The word list.
+        existing_gloss: An existing glossary to ignore.
+        Options is a namespace with options of:
         upper_only: Only consider all upper case strings as candidates.
         inc_cammel: Include any word with upper case after the first.
         chars_only: Exclude words with embedded numbers or symbols.
-        existing_gloss: An existing glossary to ignore.
         lang: Language code to spell check against.
     """
     if enchant is not None and options.lang.upper() != "NONE":
@@ -105,8 +107,10 @@ def get_candidates_from_list(words, existing_gloss=None, options=None):
     if options.inc_camel:  # All upper only
         words = [w for w in words if len(w) > 1 and any(
             [c.isupper() for c in w[1:]])]
-    if existing_gloss:  # We have a glossary
-        words = [w for w in words if w not in existing_gloss]
+    if extern_gloss:  # We have an external glossary
+        words = [w for w in words if w not in extern_gloss]
+    if doc_gloss:  # We have a document glossary
+        words = [w for w in words if w not in doc_gloss]
 
     return sorted(words, key=lambda s: s.lower())
 

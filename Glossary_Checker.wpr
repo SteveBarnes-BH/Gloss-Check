@@ -16,5 +16,5 @@ proj.launch-config = {loc('doc2docx.py'): ('project',
         (u'D:\\Users\\212303160\\Documents\\UMD\\Release\\UMD_H\\S39503-300-00-350_G.doc',
          '')),
                       loc('gloss_check.py'): ('project',
-        (u'\\Users\\212303160\\Documents\\S178114-00-350.docx -u -1',
+        (u'"D:\\Users\\212303160\\Documents\\DHA-43150-00-327-A[1].docx" -u -1 -T',
          ''))}

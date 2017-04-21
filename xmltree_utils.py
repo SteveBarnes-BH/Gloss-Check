@@ -81,7 +81,7 @@ def get_docx_tree_wordlist(path, options):  #, extract_glossary=False):
         if word not in cwordlist:
             cwordlist.append(word)
 
-    return len(cwordlist) > 0, sorted(cwordlist, key=lambda s: s.lower())
+    return len(cwordlist) > 0, sorted(cwordlist, key=lambda s: s.lower()), []
 
 if __name__ == '__main__':
     pass
