@@ -5,18 +5,18 @@
   Purpose: Spell check all of the RST files in a sphinx project.
   Created: 14/03/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
 import os
 import fnmatch
-import enchant
 import textwrap
+import enchant
 
 def get_file_lists(start_dir='.'):
     """ Get a list of files to process."""
     file_list = set()
     glossary_list = set()
     excludedirs = ['.svn', '.git', '.hg']
-    
+
     for root, dirs, files in os.walk(start_dir):
         for ex in excludedirs:
             if ex in dirs:
@@ -73,4 +73,3 @@ def main(startdir='.', lang='en_UK'):
 
 if __name__ == '__main__':
     main()
-    

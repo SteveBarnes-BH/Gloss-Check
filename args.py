@@ -5,11 +5,17 @@
   Purpose: Arguments for the glossary checker.
   Created: 17/04/2017
 """
+from __future__ import (print_function, )
 
 try:
     import enchant
 except ImportError:
     enchant = None
+try:
+    from enchant import tokenize as etock
+    #import enchant.tokenize as etock
+except ImportError:
+    etock = None
 
 ARG_LIST = [
     (['-M', '-m', '--min-acc'],
@@ -44,7 +50,18 @@ if len(LANGS) > 1: # Add the language option if we have a dictionary available
                         {'action':'store', 'choices':LANGS, 'default':'en_GB',
                          "help":'Language code to spell check against'}),
                    )
-
+if etock is not None:
+    ARG_LIST.append((['-e', '-E', '--etok'],
+                     {'action':'store_false',
+                      "help":'Enchant Tokanization'}),
+                   )
 
 if __name__ == '__main__':
-    pass
+    print("Argument List:")
+    for ARG in ARG_LIST:
+        FLAGS, ACTION_DICT = ARG
+        print("Flag:", ', '.join(FLAGS))
+        print("Uses:")
+        for K, V in ACTION_DICT.iteritems():
+            print("\t%s: %s" % (K, V))
+        print()

@@ -5,16 +5,17 @@
   Purpose: XML Tree based document processing.
   Created: 17/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
+
 import os
 import zipfile
-import text_utls
 
 try:
     from xml.etree.cElementTree import XML
 except ImportError:
     from xml.etree.ElementTree import XML
 
+import text_utls
 
 # Constants used to decode MS Word Open Document Format
 WRD_NS = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
@@ -51,7 +52,7 @@ def get_tree_table_wordlist(tree, minacc=1, tabno=None):
     cwordlist = text_utls.clean_wordlist(wordlist, minacc)
     return cwordlist
 
-def get_docx_tree_wordlist(path, minacc=1):  #, extract_glossary=False):
+def get_docx_tree_wordlist(path, options):  #, extract_glossary=False):
     """
     Take the path of a docx file as argument, return the list of words.
     Note that this doesn't work as well as get_docx2_wordlist
@@ -73,8 +74,8 @@ def get_docx_tree_wordlist(path, minacc=1):  #, extract_glossary=False):
             text = ''.join(texts)
             wordlist.update(text.split())
 
-    cwordlist = text_utls.clean_wordlist(wordlist, minacc)
-    tabwords = get_tree_table_wordlist(tree, minacc=minacc)
+    cwordlist = text_utls.clean_wordlist(wordlist, options.min_acc)
+    tabwords = get_tree_table_wordlist(tree, minacc=options.min_acc)
     print(len(tabwords), 'words from tables.')
     for word in tabwords:
         if word not in cwordlist:

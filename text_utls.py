@@ -5,7 +5,8 @@
   Purpose: Utilties for the glossary checker
   Created: 11/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
+
 import sys
 import textwrap
 import codecs
@@ -71,17 +72,13 @@ def get_glossary(ops):
             else:
                 infile = item
             print('   ', infile.name)
-            ingloss.extend(tokenize(infile.read()))
+            ingloss.extend(tokenize(infile.read(), ops))
             infile.close()
     ingloss = clean_wordlist(ingloss)
-    ingloss = get_candidates_from_list(
-        ingloss, upper_only=ops.upper_only, chars_only=ops.chars_only,
-        inc_cammel=ops.inc_camel, existing_gloss=[], lang=ops.lang)
+    ingloss = get_candidates_from_list(ingloss, existing_gloss=[], options=ops)
     return ingloss
 
-def get_candidates_from_list(words, upper_only=True, inc_cammel=False,
-                             chars_only=True,
-                             existing_gloss=None, lang='en_GB'):
+def get_candidates_from_list(words, existing_gloss=None, options=None):
     """
     Get glossary candidates from a word list.
 
@@ -93,19 +90,19 @@ def get_candidates_from_list(words, upper_only=True, inc_cammel=False,
         existing_gloss: An existing glossary to ignore.
         lang: Language code to spell check against.
     """
-    if enchant is not None and lang.upper() != "NONE":
+    if enchant is not None and options.lang.upper() != "NONE":
         try:
-            chker = enchant.Dict(lang)
+            chker = enchant.Dict(options.lang)
             words = [w for w in words if len(w) and not chker.check(w)]  # Not in dictionary
         except enchant.errors.DictNotFoundError:
-            print(lang, "Dictionary Not Found, use -ll for list of options.")
+            print(options.lang, "Dictionary Not Found, use -ll for list of options.")
             time.sleep(1.5)
-    if chars_only:  # Only alpha based
+    if options.chars_only:  # Only alpha based
         words = [w for w in words if all([c.isalpha() or c == '.' for c in w])]
-    if upper_only:  # All upper only
+    if options.upper_only:  # All upper only
         words = [w for w in words if all(
             [c.isupper() or c == '.' for c in w[:-1]]) and (w[-1].isupper() or w[-1] == 's')]
-    if inc_cammel:  # All upper only
+    if options.inc_camel:  # All upper only
         words = [w for w in words if len(w) > 1 and any(
             [c.isupper() for c in w[1:]])]
     if existing_gloss:  # We have a glossary
@@ -113,12 +110,12 @@ def get_candidates_from_list(words, upper_only=True, inc_cammel=False,
 
     return sorted(words)
 
-def tokenize(text):
+def tokenize(text, options):
     """ Split the text into words."""
     tokzr = None
-    if etock is not None:
+    if etock is not None and options.etok:
         try:
-            tokzr = etock.get_tokenizer()
+            tokzr = etock.get_tokenizer(options.lang)
         except enchant.errors.TokenizerNotFoundError:
             tokzr = None
 

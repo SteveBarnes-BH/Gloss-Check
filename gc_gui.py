@@ -5,7 +5,8 @@
   Purpose: Provide a GUI
   Created: 17/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
+
 import sys
 from collections import namedtuple
 import textwrap
@@ -92,9 +93,7 @@ if GUI_OK:
             for name in filenames:
                 self.window.write_text('\nProcessing %s!' % name)
                 success, candidates, unused = gloss_utils.get_candidates(
-                    name, minlen=options.min_acc, upper_only=options.upper_only,
-                    chars_only=options.chars_only, inc_cammel=options.inc_camel,
-                    existing_gloss=glossary, lang=options.lang)
+                    name, extern_gloss=glossary, options=options)
                 if not success:
                     self.window.write_text(
                         " - ERROR: File is not supported or is corrupted/empty")
@@ -223,7 +222,7 @@ if GUI_OK:
         def on_c_b(self, evt):
             """ Action a check box. """
             val = evt.EventObject.IsChecked()
-            if val !=  self.droptgt.options[evt.EventObject.storeas]:
+            if val != self.droptgt.options[evt.EventObject.storeas]:
                 self.droptgt.options[evt.EventObject.storeas] = val
                 self.droptgt.reprocess()
                 #print(self.droptgt.options)

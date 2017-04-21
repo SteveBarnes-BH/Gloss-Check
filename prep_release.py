@@ -5,20 +5,20 @@
   Purpose: Prepare a release
   Created: 17/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
 import sys
 import os
 import datetime
-from dulwich.repo import Repo
-import semantic_version as sv
 import subprocess
 import re
 import shutil
-import zipfile
+#import zipfile
+from dulwich.repo import Repo
+import semantic_version as sv
 
 def get_latest_tag(repo):
     """ Get the latest tag from the repo."""
-    toptag = "0.0.0"
+    toptag = sv.Version("0.0.0")
     topbuild = None
     tag_dict = repo.refs.as_dict("refs/tags")
     tags = [(sv.Version.coerce(tag[1:]), tag_dict[tag]) for tag in tag_dict.keys()]
@@ -29,16 +29,18 @@ def get_latest_tag(repo):
 
 def next_build(last_ver):
     """ Get the next build identifier. """
-    build = last_ver.build
+    #build = last_ver.build
     def give_next_build():
         """ Construct a version string from the current."""
-        newver = last_ver
+        newver = sv.Version(str(last_ver))
+        now = datetime.datetime.now()
+        newver.build = [now.strftime('%Y_%m_%d_%H%M')]
         while newver <= last_ver:
             buildname = raw_input('Build Name: ')
-            newver = sv.Version("%s.%s.%s-%s" % (last_ver.major, last_ver.minor,
+            newver = sv.Version("%s.%s.%s+%s" % (last_ver.major, last_ver.minor,
                                                  last_ver.patch, buildname))
-            if newver <= last_ver:
-                print("Error:", newver, "<=", last_ver)
+            if newver == last_ver:
+                print("Error:", newver, "==", last_ver)
         return newver
     return give_next_build
 
@@ -50,13 +52,13 @@ def get_next_release(repo):
                       'P':last_ver.next_patch, 'B':next_build(last_ver),
                       'C':sys.exit,}
     print('Last Tagged Version', last_ver)
-    rt = '?'
+    reltype = '?'
     prompt = "Release Type: %s: " % ', '.join(
         sorted(["%s=%s" % item for item in release_types.iteritems()]))
-    while rt not in release_types.keys():
+    while reltype not in release_types.keys():
         instr = raw_input(prompt)
-        rt = instr[0].upper()
-    next_release = m_next_release[rt]()
+        reltype = instr[0].upper()
+    next_release = m_next_release[reltype]()
     return next_release
 
 def update_version_file(newver, fpath="./version_info.py"):
@@ -134,22 +136,27 @@ def main():
     repo = Repo('.')
     next_release = get_next_release(repo)
     print('Next Release:', next_release)
-    msg = raw_input("Release Message: ").strip()
     update_version_file(next_release, verfile)
-    add_changes_git(msg)
-    try:
-        push_git()
-        status = "Changes Pushed"
-    except subprocess.CalledProcessError:
-        print("Push Changes FAILED!")
-        status = "Changes NOT Pushed"
-    add_tag_git(next_release, msg)
-    try:
-        push_tag_git(next_release)
-        status += ", Tag %s Pushed" % next_release
-    except subprocess.CalledProcessError:
-        print("Push Tag FAILED!")
-        status += ", Tag %s NOT Pushed" % next_release
+    if len(next_release.build) == 0:
+        pre = raw_input('Pre-Release?: ')
+        if len(pre):
+            next_release.prerelease = [pre]
+            update_version_file(next_release, verfile)
+        msg = raw_input("Release Message: ").strip()
+        add_changes_git(msg)
+        try:
+            push_git()
+            status = "Changes Pushed"
+        except subprocess.CalledProcessError:
+            print("Push Changes FAILED!")
+            status = "Changes NOT Pushed"
+        add_tag_git(next_release, msg)
+        try:
+            push_tag_git(next_release)
+            status += ", Tag %s Pushed" % next_release
+        except subprocess.CalledProcessError:
+            print("Push Tag FAILED!")
+            status += ", Tag %s NOT Pushed" % next_release
     if pyinstaller('gloss_check.py') == 0:
         zip_build('gloss_check', 'v%s' % next_release)
     print(status)

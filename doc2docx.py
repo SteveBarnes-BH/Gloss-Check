@@ -5,7 +5,7 @@
   Purpose: Convert MS Word doc files to docx
   Created: 04/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
 import sys
 import os
 import time

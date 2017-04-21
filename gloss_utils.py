@@ -5,7 +5,8 @@
   Purpose: Utility Functions for Glossary checking
   Created: 17/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
+
 import os
 import glob
 import tempfile
@@ -13,15 +14,16 @@ try:
     import docx
 except ImportError:
     docx = None
+try:
+    import textract
+except ImportError:
+    textract = None
+
 import text_utls
 import docx2utils
 import xmltree_utils
 import doc2docx
 
-try:
-    import textract
-except ImportError:
-    textract = None
 
 def get_textract_wordlist(path, minacc=1):
     """
@@ -36,7 +38,7 @@ def get_textract_wordlist(path, minacc=1):
             result = (False, [])
     return result
 
-def get_doc_wordlist(path, minacc=1):  #, extract_glossary=False):
+def get_doc_wordlist(path, options):  #, extract_glossary=False):
     """
     Take the path of a doc file as argument, return the list of words.
     """
@@ -48,26 +50,25 @@ def get_doc_wordlist(path, minacc=1):  #, extract_glossary=False):
     doc2docx.doc2docx(path, temppath)
     # Create a temprory copy of the doc as docx
     if docx is not None:
-        success, cwordlist = docx2utils.get_docx2_wordlist(temppath, minacc)
+        success, cwordlist = docx2utils.get_docx2_wordlist(temppath, options)
     else:
-        success, cwordlist = xmltree_utils.get_docx_tree_wordlist(temppath, minacc)
+        success, cwordlist = xmltree_utils.get_docx_tree_wordlist(temppath, options)
     if os.path.exists(temppath):
         os.remove(temppath)
         print('Removed', temppath)
     return success, cwordlist
 
-def get_candidates(
-        path, minlen=2, upper_only=True, chars_only=True, inc_cammel=False,
-        existing_gloss=None, lang='en_GB'):
+def get_candidates(path, extern_gloss=None, options=None):
     """
     Get glossary candidates from a Word Open Document Format file.
 
     Params:
         path: The path to the docx file.
+        options: Options namespace including:
         upper_only: Only consider all upper case strings as candidates.
         inc_cammel: Include any word with upper case after the first.
         chars_only: Exclude words with embedded numbers or symbols.
-        existing_gloss: An existing glossary to ignore.
+        extern_gloss: An existing glossary to ignore.
         lang: Language code to spell check against.
     """
     success = False
@@ -82,25 +83,25 @@ def get_candidates(
     candiates = []
     unused = []
     if method is not None:
-        success, words = method(path, minlen)
+        success, words = method(path, options)
     elif textract is not None:
-        success, words = get_textract_wordlist(path, minlen)
+        success, words = get_textract_wordlist(path, options.min_acc)
     if success:
         candiates = text_utls.get_candidates_from_list(
-            words, upper_only, inc_cammel, chars_only, existing_gloss, lang)
-        unused = [item for item in existing_gloss if not item in words]
+            words, extern_gloss, options)
+        unused = [item for item in extern_gloss if not item in words]
     return (success, candiates, unused)
 
 def process_docs(options, ext_gloss):
     """ Process the documents."""
     for arg in options.DOCS:
-        print('Arg:', arg)
-        for filename in glob.glob(arg):
+        print('Document/Wildcard:', arg)
+        filelist = glob.glob(arg)
+        if len(filelist) == 0:
+            print("ERROR: No files match", arg)
+        for filename in filelist:
             print('Processing', filename)
-            success, candidates, unused = get_candidates(
-                filename, minlen=options.min_acc, upper_only=options.upper_only,
-                chars_only=options.chars_only, inc_cammel=options.inc_camel,
-                existing_gloss=ext_gloss, lang=options.lang)
+            success, candidates, unused = get_candidates(filename, ext_gloss, options=options)
             if not success:
                 print("ERROR: File is not a supported format or is corrupted/empty")
             else:

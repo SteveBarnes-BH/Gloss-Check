@@ -5,7 +5,8 @@
   Purpose: Version Information Utilties
   Created: 17/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
+
 import sys
 try:
     import wx
@@ -25,7 +26,7 @@ try:
 except ImportError:
     textract = None
 
-__version__ = "v0.10.3"
+__version__ = "v0.10.3+2017_04_20_1408"
 
 def get_version_info():
     """ Get the version information."""

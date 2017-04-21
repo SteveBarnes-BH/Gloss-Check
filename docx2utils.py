@@ -5,7 +5,7 @@
   Purpose: Docx based document utilities.
   Created: 17/04/2017
 """
-from __future__ import print_function
+from __future__ import (print_function, )
 
 import os
 try:
@@ -13,10 +13,9 @@ try:
 except ImportError:
     docx = None
 
-
 import text_utls
 
-def get_docx2_wordlist(path, minacc=1):
+def get_docx2_wordlist(path, options):
     """
     Use docx to get the word list.
     """
@@ -27,17 +26,17 @@ def get_docx2_wordlist(path, minacc=1):
     wordlist = set()
     texts = [p.text for p in document.paragraphs]
     # Add the text from tables
-    for table in document.tables:
-        for col in table.columns:
-            texts.extend([cell.text for cell in col.cells])
+    #for table in document.tables:
+        #for col in table.columns:
+            #texts.extend([cell.text for cell in col.cells])
     if texts:
         text = '\n'.join(texts)
-        wordlist.update(text_utls.tokenize(text))
-    cwordlist = text_utls.clean_wordlist(wordlist, minacc)
-    for word in get_docx_table_text(document, minacc=minacc):
+        wordlist.update(text_utls.tokenize(text, options))
+    cwordlist = text_utls.clean_wordlist(wordlist, options.min_acc)
+    for word in get_docx_table_text(document, options=options):
         if word not in cwordlist:
             cwordlist.append(word)
-    #document.lose()
+    #document.close()
 
     return len(cwordlist) > 0, sorted(cwordlist)
 
@@ -77,8 +76,8 @@ def docx_table_text_valid_args(path_or_docx, tabno=None, colno=None,
 
     return (tables, col_nums, ignore)
 
-def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None,
-                        excl_col=None):
+def get_docx_table_text(path_or_docx, tabno=None, colno=None,
+                        excl_col=None, options=None):
     """
     Get the text from tables in a document supplied as a path or docx.
     If tabno is None then all tables, if it is a simple number then that one and
@@ -99,8 +98,8 @@ def get_docx_table_text(path_or_docx, minacc=1, tabno=None, colno=None,
     wordlist = set()
     if texts:
         text = '\n'.join(texts)
-        wordlist.update(text_utls.tokenize(text))
-    cwordlist = text_utls.clean_wordlist(wordlist, minacc)
+        wordlist.update(text_utls.tokenize(text, options))
+    cwordlist = text_utls.clean_wordlist(wordlist, options.min_acc)
     return cwordlist
 
 
