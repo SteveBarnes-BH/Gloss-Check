@@ -69,7 +69,8 @@ def main(startdir='.', lang='en_UK'):
             print('OK')
         else:
             print(len(bad), "Unknown words:")
-            print('\n'.join(textwrap.wrap(', '.join(sorted(bad)), 78)))
+            print('\n'.join(textwrap.wrap(', '.join(
+                sorted(bad, key=lambda s: s.lower())), 78)))
 
 if __name__ == '__main__':
     main()

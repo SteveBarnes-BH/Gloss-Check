@@ -108,7 +108,7 @@ def get_candidates_from_list(words, existing_gloss=None, options=None):
     if existing_gloss:  # We have a glossary
         words = [w for w in words if w not in existing_gloss]
 
-    return sorted(words)
+    return sorted(words, key=lambda s: s.lower())
 
 def tokenize(text, options):
     """ Split the text into words."""

@@ -38,7 +38,7 @@ def get_docx2_wordlist(path, options):
             cwordlist.append(word)
     #document.close()
 
-    return len(cwordlist) > 0, sorted(cwordlist)
+    return len(cwordlist) > 0, sorted(cwordlist, key=lambda s: s.lower())
 
 
 def docx_table_text_valid_args(path_or_docx, tabno=None, colno=None,
