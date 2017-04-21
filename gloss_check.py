@@ -4,7 +4,7 @@
   Purpose: Find the candidates for the glossary in a word document.
   Author: Steve Barnes --<StevenJohn.Barnes@ge.com>
   Created: 13/03/2017.
-  Updated: 07/04/2017.
+  Updated: 21/04/2017.
 
   Find the candidates for the glossary in a word document.
 """
