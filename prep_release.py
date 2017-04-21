@@ -129,6 +129,7 @@ def zip_build(target, version):
                          #zipfile.ZIP_DEFLATED)
     #zf.close()
     print("Zipped to:", zipped_to)
+    return zipped_to
 
 def main():
     """ The main process."""
@@ -136,6 +137,7 @@ def main():
     repo = Repo('.')
     next_release = get_next_release(repo)
     print('Next Release:', next_release)
+    status = "Changes NOT Pushed"
     update_version_file(next_release, verfile)
     if len(next_release.build) == 0:
         pre = raw_input('Pre-Release?: ')
@@ -149,7 +151,6 @@ def main():
             status = "Changes Pushed"
         except subprocess.CalledProcessError:
             print("Push Changes FAILED!")
-            status = "Changes NOT Pushed"
         add_tag_git(next_release, msg)
         try:
             push_tag_git(next_release)
@@ -158,7 +159,8 @@ def main():
             print("Push Tag FAILED!")
             status += ", Tag %s NOT Pushed" % next_release
     if pyinstaller('gloss_check.py') == 0:
-        zip_build('gloss_check', 'v%s' % next_release)
+        status += "\nBuild Zipped to: %s" % zip_build(
+            'gloss_check', 'v%s' % next_release)
     print(status)
 
 if __name__ == '__main__':
