@@ -158,12 +158,12 @@ def main():
         except subprocess.CalledProcessError:
             print("Push Tag FAILED!")
             status += ", Tag %s NOT Pushed" % next_release
-    if pyinstaller('gloss_check.py', False) == 0:
-        status += "\nBuild Zipped to: %s" % zip_build(
-            'gloss_check', 'v%s' % next_release)
     if pyinstaller('gloss_check.py', True) == 0:
         status += "\nGUI Only Build Zipped to: %s" % zip_build(
             'gloss_check', 'v%s-GUI' % next_release)
+    if pyinstaller('gloss_check.py', False) == 0:
+        status += "\nBuild Zipped to: %s" % zip_build(
+            'gloss_check', 'v%s' % next_release)
     print(status)
 
 if __name__ == '__main__':
