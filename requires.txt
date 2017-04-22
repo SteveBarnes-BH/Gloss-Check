@@ -3,3 +3,4 @@ pyenchant
 python-docx 
 lxml 
 semantic_version 
+pywin32 
