@@ -15,6 +15,7 @@ import time
 import text_utls
 import args
 import gloss_utils
+from version_info import __version__ as VERSION
 
 GUI_OK = False
 try:
@@ -168,7 +169,7 @@ if GUI_OK:
                 name = [n[2:] for n in optnames if n.startswith('--')][0]
                 name = name.replace('-', '_')
                 lable = name.replace('_', ' ').strip()
-                lable = lable.capitalize()
+                lable = ' '.join([w.capitalize() for w in lable.split()])
                 storeas = details.get('dest', name)
                 if details['action'] in ['store_true', 'store_false']:
                     ctrl, start_val = self.add_check_box(details, name, lable,
@@ -265,7 +266,8 @@ if GUI_OK:
     def start_gui():
         """ Start in GUI mode."""
         app = wx.App(redirect=True)
-        frame = wx.Frame(None, -1, "Glossary Checker", size=(600, 400))
+        frame = wx.Frame(None, -1, "Glossary Checker %s" % VERSION,
+                         size=(600, 400))
         win = GuiPanel(frame, sys.stdout)
         frame.Show(True)
         app.MainLoop()
