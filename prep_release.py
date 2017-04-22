@@ -96,11 +96,11 @@ def push_git():
     result = subprocess.check_call(commands, shell=True)
     return result
 
-def pyinstaller(target):
+def pyinstaller(target, gui_only=False):
     """ Do the build."""
     commands = [
         'pyinstaller', '--clean', '-y',  # Force Clean Build
-        '-w',  # Windowed
+        gui_only and '-w' or '-c',  # Windowed or console
         target,
         # Add the tokenizer
         r'--add-data=C:\Python35-32\Lib\site-packages\enchant\tokenize;enchant\tokenize',]
@@ -158,9 +158,12 @@ def main():
         except subprocess.CalledProcessError:
             print("Push Tag FAILED!")
             status += ", Tag %s NOT Pushed" % next_release
-    if pyinstaller('gloss_check.py') == 0:
+    if pyinstaller('gloss_check.py', False) == 0:
         status += "\nBuild Zipped to: %s" % zip_build(
             'gloss_check', 'v%s' % next_release)
+    if pyinstaller('gloss_check.py', True) == 0:
+        status += "\nGUI Only Build Zipped to: %s" % zip_build(
+            'gloss_check', 'v%s-GUI' % next_release)
     print(status)
 
 if __name__ == '__main__':
