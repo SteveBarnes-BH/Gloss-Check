@@ -1,0 +1,5 @@
+wxpython 
+pyenchant 
+python-docx 
+lxml 
+semantic_version 
