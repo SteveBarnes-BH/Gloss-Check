@@ -1,7 +1,7 @@
 ### Welcome to GitHub Pages for Gloss-Check.
 The intention of Gloss-Check is to make it easier to ensure that our documents contain **acurate** & **complete** glossaries with minimal effort.
 
-The concept and original code for this project came from Steve Barnes, (@212303160), at GE Oil & Gas (UK) in Nailsea. It is coded in [Python](https://www.python.org/) and offers a [wxPython](https://wxpython.org/) GUI or a command line interface. A Windows compatible build is produced using pyinstaller and is available in [releases](./releases).
+The concept and original code for this project came from [Steve Barnes](https://github.build.ge.com/212303160) at GE Oil & Gas (UK) in Nailsea, UK. It is coded in [Python](https://www.python.org/) and offers a [wxPython](https://wxpython.org/) GUI or a command line interface. MS-Windows compatible builds are produced using pyinstaller and are available in [releases](./releases).
 
 ### Installation
 On Windows simply download the zip of the desired release from [releases](./releases) and unzip it to a location that you wish to use it from, you can then invoke it from that location or add it to your path. **N.B.** The GUI build will only work in GUI mode but will not open a command window when started, the default build will.
@@ -66,7 +66,7 @@ Either start the GUI from the command line with `gloss_check`, double click on t
 ### Authors and Contributors
 The following have contributed to the development of this package:
 
- - Steve Barnes, (@212303160), at GE Oil & Gas (UK) in Nailsea.
+ - [Steve Barnes](https://github.build.ge.com/212303160) at GE Oil & Gas (UK) in Nailsea, UK.
 
 ### Open Source Elements
 
