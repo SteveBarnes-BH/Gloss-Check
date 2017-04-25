@@ -40,7 +40,7 @@ def get_docx2_wordlist(path, options):
         if word not in cwordlist:
             cwordlist.append(word)
     # Then from the other colums of tables
-    for word in get_docx_table_text(document, ignore_col1, excl_col=1, options=options):
+    for word in get_docx_table_text(document, ignore_col1, excl_col=0, options=options):
         if word not in cwordlist:
             cwordlist.append(word)
 
@@ -64,7 +64,7 @@ def docx_get_table_gloss(path_or_docx, whitelist=None, options=None):
         #print('Table %d has %d possible items of %d' % (
             #index, len(candidates), len(coltxt)))
         #print(', '.join(candidates))
-        if len(candidates) * 100.0 / len(coltxt) > 50:  # %age possible
+        if len(coltxt) and len(candidates) * 100.0 / len(coltxt) > 50:  # %age possible
             print('Table %d has %d possible items of %d' % (
                 index, len(candidates), len(coltxt)))
             print('Adding to assumed glossary:', ', '.join(candidates))
@@ -98,7 +98,7 @@ def docx_table_text_valid_args(path_or_docx, tabno=None, colno=None,
         print('get_docx_table_text colno must be one of None, int or list of ints')
         print('Ignoring', type(colno), colno)
     if isinstance(excl_col, int):
-        ignore = []
+        ignore = [excl_col]
     elif isinstance(excl_col, list) and all([isinstance(item, int) for item in excl_col]):
         ignore = excl_col
     elif excl_col is not None:
