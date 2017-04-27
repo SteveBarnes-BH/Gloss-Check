@@ -23,7 +23,7 @@ ARG_LIST = [
       'help':"Minimum Length for a possible glossary entry"}),
     (['-u', '-U', '--upper_only'],
      {'action':'store_true',
-      'help':"Only consider all uppercase strings as candidates."}),
+      'help':"Only consider all uppercase, (may end with s), strings as candidates."}),
     (['-C', '-c', '--chars_only'],
      {'action':'store_true',
       "help":"Exclude words with embedded numbers or symbols."}),

@@ -32,7 +32,7 @@ def clean_wordlist(wordlist, minacc=1):
     validwords = set()
     for word in wordlist:
         #cleanword = word.decode('utf-8', 'ignore').strip(u'“”,\'"‘ ’()./:;')
-        cleanword = word.strip(u'“”,\'"‘ ’()./:;')
+        cleanword = word.strip(u'“”,\'"‘ ’./:;()[]{}')
         if len(cleanword) >= minacc:
             validwords.add(cleanword)
     return list(validwords)
@@ -103,8 +103,8 @@ def get_candidates_from_list(words, extern_gloss=None, doc_gloss=None, options=N
         words = [w for w in words if all([c.isalpha() or c == '.' for c in w])]
     if options.upper_only:  # All upper only
         words = [w for w in words if all(
-            [c.isupper() or c == '.' for c in w[:-1]]) and (w[-1].isupper() or w[-1] == 's')]
-    if options.inc_camel:  # All upper only
+            [c.isupper() for c in w[:-1] if c.isalpha()]) and (w[-1].isupper() or w[-1] == 's')]
+    if options.inc_camel:  # Camel Case
         words = [w for w in words if len(w) > 1 and any(
             [c.isupper() for c in w[1:]])]
     if extern_gloss:  # We have an external glossary
