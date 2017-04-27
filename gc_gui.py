@@ -8,6 +8,7 @@
 from __future__ import (print_function, )
 
 import sys
+import os
 from collections import namedtuple
 import textwrap
 import time
@@ -54,33 +55,57 @@ if GUI_OK:
             self.log = log
             self.options = {'glossary':[], 'lang':None,}
             self.dropped_files = []
+            self.timestamps = {}
+            self.busy = False
 
         ##
         def OnDropFiles(self, dummy_x, dummy_y, filenames):
             """
             Action files being dropped
             """
+            self.busy = True
             self.window.clear_text()
             self.window.Refresh()
             self.window.set_insertion_point_end()
             self.window.write_text("\n%d file(s) dropped\n" %
                                    (len(filenames)))
             self.dropped_files = filenames
-
+            self.get_tstamps(filenames)  # Snapshot the time/dates
             self.process_files(filenames)
+            self.busy = False
             return 0
+
+        def get_tstamps(self, filenames=None):
+            """
+            Return the date/time information for the filenames
+            """
+            has_changes = False
+            if filenames:
+                self.timestamps = {}
+                reset = False
+            else:
+                filenames = self.dropped_files
+                reset = True
+            if reset or self.options['autoupdate']:
+                for name in filenames:
+                    tstamp = os.path.getmtime(name)
+                    has_changes = self.timestamps.get(name, -1) != tstamp
+                    self.timestamps[name] = tstamp
+            return has_changes
 
         def reprocess(self):
             """
             Optionally reprocess on a change.
             """
-            if self.options['autoupdate'] and len(self.dropped_files):
+            if not self.busy and self.options['autoupdate'] and len(self.dropped_files):
+                self.busy = True
                 self.window.clear_text()
                 self.window.Refresh()
                 self.window.set_insertion_point_end()
                 self.window.write_text("\nReprocessing %d file(s)\n" %
                                        (len(self.dropped_files)))
                 self.process_files(self.dropped_files)
+                self.busy = False
 
         def process_files(self, filenames):
             """
@@ -132,6 +157,7 @@ if GUI_OK:
             )
 
             self.text.SetDropTarget(self.droptgt)
+            self.timer = wx.Timer(self)
             sizer.Add(self.text, 1, wx.EXPAND)
             self.text.WriteText("\nDrag one or more DOC/DOCX files here:")
             self.SetSizer(sizer)
@@ -139,11 +165,24 @@ if GUI_OK:
             sizer.SetSizeHints(self)
             self.SetAutoLayout(True)
             self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+            self.Bind(wx.EVT_TIMER, self.OnTimer)
+            self.interval = 2000  # 2 Secs
+            self.timer.Start(self.interval)  # Check every 2 seconds
+
+        def OnTimer(self, dummy_evt):
+            """ Timer expired."""
+            #print('Timer!')
+            if not self.droptgt.busy and self.droptgt.get_tstamps():
+                #print('File(s) Changed!')
+                self.droptgt.reprocess()
 
         def OnClose(self, dummy_evt):
             """ Remove any stdout windows."""
             wx.GetApp().RestoreStdio()
             #print("Delete any stdout window!")
+            if self.timer.IsRunning():
+                self.timer.Stop()
+
             OPW = wx.FindWindowByLabel('wxPython: stdout/stderr')
             if not None == OPW:
                 OPW.Destroy()
