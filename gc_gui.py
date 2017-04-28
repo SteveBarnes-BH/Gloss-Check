@@ -179,6 +179,8 @@ if GUI_OK:
         def OnClose(self, dummy_evt):
             """ Remove any stdout windows."""
             wx.GetApp().RestoreStdio()
+            if self.droptgt.options['save_config']:
+                args.save_config(self.droptgt.options, gui=True)
             #print("Delete any stdout window!")
             if self.timer.IsRunning():
                 self.timer.Stop()
@@ -193,28 +195,28 @@ if GUI_OK:
             cb_style = wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ALL
             ctrl = wx.Button(self, -1, 'Load Glossary')
             ctrl.SetToolTip(
-                wx.ToolTip('Select an existing glossary from text file(s) to ignore.'))
+                wx.ToolTip(
+                    'Select an existing glossary from text file(s) to ignore.\n'
+                    'Acts as a whitelist when using glossary from tables.'
+                ))
             self.Bind(wx.EVT_BUTTON, self.on_load_gloss, ctrl)
             subsizer.Add(ctrl, 1, cb_style, 2)
 
-            arg_list = args.ARG_LIST
-            arg_list.append((["--Auto-Update"], {
-                'dest':'autoupdate', 'action':'store_true',
-                'help':'Automatically reprocess on settings change.',
-            }))
+            arg_list = args.get_option_list(gui=True)
+            cfg = args.read_config_dict(gui=True)
 
             for optnames, details in arg_list:
                 assert isinstance(details, dict)
-                name = [n[2:] for n in optnames if n.startswith('--')][0]
-                name = name.replace('-', '_')
-                lable = name.replace('_', ' ').strip()
-                lable = ' '.join([w.capitalize() for w in lable.split()])
+                name = details.get('dest')
+                lable = details.get('lable', name)
                 storeas = details.get('dest', name)
+                cfg_val = cfg.get(name)
                 if details['action'] in ['store_true', 'store_false']:
-                    ctrl, start_val = self.add_check_box(details, name, lable,
-                                                         subsizer)
+                    ctrl, start_val = self.add_check_box(subsizer, name, lable,
+                                                         details, cfg_val)
                 elif details['action'] == 'store':
-                    ctrl, start_val = self.add_choice(lable, subsizer, name, details)
+                    ctrl, start_val = self.add_choice(subsizer, name, lable,
+                                                      details, cfg_val)
                 else:
                     ctrl = None
                     print(name, details)
@@ -224,7 +226,7 @@ if GUI_OK:
                     ctrl.SetToolTip(wx.ToolTip(details['help']))
             return subsizer
 
-        def add_choice(self, lable, subsizer, name, details):
+        def add_choice(self, subsizer, name, lable, details, cfg_val=None):
             """ Add a choice control."""
             cb_style = wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ALL
             txt_style = wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.ALL
@@ -234,16 +236,20 @@ if GUI_OK:
             ctrl = wx.Choice(self, -1, style=ch_style, name=name,
                              choices=[str(c) for c in details['choices']])
             start_val = details.get('default')
+            if not cfg_val is None:
+                start_val = cfg_val
             ctrl.SetStringSelection(str(start_val))
             ctrl.rettype = details.get('type', str)
             subsizer.Add(ctrl, 1, cb_style, 2)
             self.Bind(wx.EVT_CHOICE, self.on_choose, ctrl)
             return ctrl, start_val
 
-        def add_check_box(self, details, name, lable, subsizer):
+        def add_check_box(self, subsizer, name, lable, details, cfg_val=None):
             """ Add a checkbox."""
             cb_style = wx.ALIGN_LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ALL
             start_val = (details['action'] == 'store_false')
+            if not cfg_val is None:
+                start_val = cfg_val
             ctrl = wx.CheckBox(self, -1, lable, name=name)
             self.droptgt.options[name] = start_val
             ctrl.SetValue(start_val)

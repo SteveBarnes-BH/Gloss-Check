@@ -23,32 +23,7 @@ import gloss_utils
 
 def parse_args():
     """ Parse the arguments."""
-    cl_args = [  # Items that only apply to the command line version.
-        (['-G', '-g', '--glossary'],
-         {'action':'append', "type":argparse.FileType('r'),
-          "help":'An existing glossary to ignore'}),
-        (['-v', '--version'],
-         {'action':'store_true',
-          "help":'Show version information and exit.'}),
-        (['DOCS'],
-         {"nargs":'*',
-          'help':'Word document(s) to check, (Wildcards OK).'}),
-    ]
-    if len(args.LANGS):
-        cl_args.append(
-            (['-LL', '-ll', '--list-langs'],
-             {'action':'store_true',
-              "help":'List the available Language codes & exit'}))
-    parser = argparse.ArgumentParser(
-        #usage=USAGE,
-        description=__doc__,
-        #version='0.4'
-    )
-    for argp, argv in args.ARG_LIST:
-        parser.add_argument(*argp, **argv)
-    for argp, argv in cl_args:
-        parser.add_argument(*argp, **argv)
-
+    parser = args.get_cl_parser(__doc__)
     ops = parser.parse_args()
     if len(args.LANGS) == 0:
         ops.lang = None

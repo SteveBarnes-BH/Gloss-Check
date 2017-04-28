@@ -4,6 +4,22 @@
 # Wing IDE project file                                          #
 ##################################################################
 [project attributes]
+debug.launch-configs = (2,
+                        {'launch-CLfV26cPWKoCd1r8': ({},
+        {'buildcmd': ('project',
+                      None),
+         'env': ('project',
+                 [u'']),
+         'name': 'Py3.5-32',
+         'pyexec': ('custom',
+                    u'C:\\Python35-32\\python.exe'),
+         'pypath': ('default',
+                    []),
+         'pyrunargs': ('project',
+                       '-u'),
+         'runargs': u'',
+         'rundir': ('project',
+                    u'')})})
 proj.directory-list = [{'dirloc': loc('.'),
                         'excludes': [u'dist',
                                      u'build'],
@@ -12,9 +28,15 @@ proj.directory-list = [{'dirloc': loc('.'),
                         'recursive': True,
                         'watch_for_changes': True}]
 proj.file-type = 'shared'
-proj.launch-config = {loc('doc2docx.py'): ('project',
+proj.launch-config = {loc('args.py'): ('custom',
+                                       (u'-c --save-config',
+        'launch-CLfV26cPWKoCd1r8')),
+                      loc('doc2docx.py'): ('project',
         (u'D:\\Users\\212303160\\Documents\\UMD\\Release\\UMD_H\\S39503-300-00-350_G.doc',
          '')),
+                      loc('gc_gui.py'): ('project',
+        (u'',
+         'launch-CLfV26cPWKoCd1r8')),
                       loc('gloss_check.py'): ('project',
         (u'"D:\\Users\\212303160\\Documents\\S43152-503-01-610_NC (1).docx" -u -1 -T',
          ''))}
