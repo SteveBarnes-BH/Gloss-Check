@@ -1,6 +1,8 @@
-wxpython 
-pyenchant 
-python-docx 
-lxml 
-semantic_version 
-pywin32 
+wxpython
+pyenchant
+python-docx
+lxml
+semantic_version
+pywin32
+appdirs
+win_unicode_console
