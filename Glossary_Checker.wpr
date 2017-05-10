@@ -36,7 +36,4 @@ proj.launch-config = {loc('args.py'): ('custom',
          '')),
                       loc('gc_gui.py'): ('project',
         (u'',
-         'launch-CLfV26cPWKoCd1r8')),
-                      loc('gloss_check.py'): ('project',
-        (u'"D:\\Users\\212303160\\Documents\\S43152-503-01-610_NC (1).docx" -u -1 -T',
-         ''))}
+         'launch-CLfV26cPWKoCd1r8'))}

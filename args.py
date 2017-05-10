@@ -69,10 +69,11 @@ if len(LANGS) > 1: # Add the language option if we have a dictionary available
                          "help":'Language code to spell check against'}),
                    )
 if etock is not None:
-    ARG_LIST.append((['-e', '-E', '--etok'],
-                     {'action':'store_false', 'savecfg':True,
-                      "help":'Enchant Tokanization'}),
-                   )
+    ARG_LIST.append(
+        (['-e', '-E', '--etok'],
+         {'action':'store_false', 'savecfg':True,
+          "help":'Enchant Tokanization (Often better BUT can give odd results)'}),
+    )
 
 CL_ARGS = [  # Items that only apply to the command line version.
     (['-G', '-g', '--glossary'],
