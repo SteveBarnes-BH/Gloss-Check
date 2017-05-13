@@ -12,7 +12,7 @@ import datetime
 import subprocess
 import re
 import shutil
-#import zipfile
+import collections
 from dulwich.repo import Repo
 import semantic_version as sv
 
@@ -48,7 +48,14 @@ def next_build(last_ver):
 
 def get_next_release(repo):
     """ Prompt for the information to generate the next release tag"""
-    release_types = {'M':'Major', 'N':'Minor', 'P':'Patch', 'B':'Build', 'C':'Cancel',}
+    release_types = collections.OrderedDict()
+    if check_connected():
+        for k, t in [('M', 'Major'), ('N', 'Minor'), ('P', 'Patch')]:
+            release_types[k] = t
+    else:
+        print("It doesn't lool like we have a connection for releases!")
+    release_types['B'] = 'Build'
+    release_types['C'] = 'Cancel'
     last_ver, last_build = get_latest_tag(repo)
     m_next_release = {'M':last_ver.next_major, 'N':last_ver.next_minor,
                       'P':last_ver.next_patch, 'B':next_build(last_ver),
@@ -56,7 +63,7 @@ def get_next_release(repo):
     print('Last Tagged Version', last_ver)
     reltype = '?'
     prompt = "Release Type: %s: " % ', '.join(
-        sorted(["%s=%s" % item for item in release_types.iteritems()]))
+        ["%s=%s" % item for item in release_types.iteritems()])
     while reltype not in release_types.keys():
         instr = raw_input(prompt)
         reltype = instr[0].upper()
@@ -132,6 +139,12 @@ def zip_build(target, version):
     #zf.close()
     print("Zipped to:", zipped_to)
     return zipped_to
+
+def check_connected():
+    """ Check if currently connected to network directly or via F5."""
+    # Currently a bit of a hack but I have D:/Org2 mapped to a network drive
+    # that is only available when connected directly or via F5.
+    return os.path.isdir(r'D:/Org2/Engineering/')
 
 def main():
     """ The main process."""
