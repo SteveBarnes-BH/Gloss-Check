@@ -16,6 +16,8 @@ import shutil
 from dulwich.repo import Repo
 import semantic_version as sv
 
+BOX_PATH = r'D:\Users\212303160\Box Sync\Glossary_Checker'
+
 def get_latest_tag(repo):
     """ Get the latest tag from the repo."""
     toptag = sv.Version("0.0.0")
@@ -133,13 +135,15 @@ def zip_build(target, version):
 
 def main():
     """ The main process."""
+    outfiles = []
     verfile = "./version_info.py"
     repo = Repo('.')
     next_release = get_next_release(repo)
     print('Next Release:', next_release)
     status = "Changes NOT Pushed"
     update_version_file(next_release, verfile)
-    if len(next_release.build) == 0:
+    release_build = len(next_release.build) == 0
+    if release_build:
         pre = raw_input('Pre-Release?: ')
         if len(pre):
             next_release.prerelease = [pre]
@@ -159,11 +163,18 @@ def main():
             print("Push Tag FAILED!")
             status += ", Tag %s NOT Pushed" % next_release
     if pyinstaller('gloss_check.py', True) == 0:
-        status += "\nGUI Only Build Zipped to: %s" % zip_build(
-            'gloss_check', 'v%s-GUI' % next_release)
+        outfile =  zip_build('gloss_check', 'v%s-GUI' % next_release)
+        status += "\nGUI Only Build Zipped to: %s" % outfile
+        outfiles.append(outfile)
     if pyinstaller('gloss_check.py', False) == 0:
-        status += "\nBuild Zipped to: %s" % zip_build(
-            'gloss_check', 'v%s' % next_release)
+        outfile = zip_build('gloss_check', 'v%s' % next_release)
+        status += "\nBuild Zipped to: %s" % outfile
+        outfiles.append(outfile)
+    if release_build and len(outfiles) > 0 and os.path.exists(BOX_PATH):
+        print('Copy zips to Box!')
+        for oufile in outfiles:
+            shutil.copy(outfile, BOX_PATH)
+        print('Done!')
     print(status)
 
 if __name__ == '__main__':
