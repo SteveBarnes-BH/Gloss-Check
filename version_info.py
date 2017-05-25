@@ -26,7 +26,7 @@ try:
 except ImportError:
     textract = None
 
-__version__ = "v1.0.0-rc5a"
+__version__ = "v1.0.0"
 
 def get_version_info():
     """ Get the version information."""
