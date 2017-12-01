@@ -6,3 +6,4 @@ semantic_version
 pywin32
 appdirs
 win_unicode_console
+pyinstaller 

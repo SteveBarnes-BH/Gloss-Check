@@ -16,7 +16,7 @@ import collections
 from dulwich.repo import Repo
 import semantic_version as sv
 
-BOX_PATH = r'D:\Users\212303160\Box Sync\Glossary_Checker'
+BOX_PATH = r'"D:\Users\212303160\Desktop\Box Sync (New)\Box Sync\Software\Gloss-Check"'
 
 def get_latest_tag(repo):
     """ Get the latest tag from the repo."""
