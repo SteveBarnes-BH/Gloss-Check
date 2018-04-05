@@ -54,21 +54,28 @@ def docx_get_table_gloss(path_or_docx, whitelist=None, options=None):
     print("Searching for tables that might be glossaries.")
     (tables, col_nums, ignore_cols) = docx_table_text_valid_args(
         path_or_docx, None, 0, None)
-    for index, table in enumerate(tables):
+    for tab_index, table in enumerate(tables):
         coltxt = []
+        add_msg = None
         for cell in table.columns[0].cells:
             coltxt.extend(text_utls.tokenize(cell.text, options))
         words = list(set(coltxt))
         candidates = text_utls.get_candidates_from_list(
             words, extern_gloss=whitelist, options=options)
         #print('Table %d has %d possible items of %d' % (
-            #index, len(candidates), len(coltxt)))
+            #tab_index, len(candidates), len(coltxt)))
         #print(', '.join(candidates))
-        if len(coltxt) and len(candidates) * 100.0 / len(coltxt) > 50:  # %age possible
-            print('Table %d has %d possible items of %d' % (
-                index, len(candidates), len(coltxt)))
+        if len(coltxt):
+            if coltxt[0].lower().split()[0] in [
+                'abbreviation', 'term', 'abbrev.', 'entry']:
+                add_msg = 'Table %d header keywords %d possible items of %d'
+            elif len(coltxt) and len(candidates) * 100.0 / len(coltxt) > 50:  # %age possible
+                add_msg = 'Table %d has %d possible items of %d'
+        if add_msg:
+            print(add_msg % (
+                tab_index, len(candidates), len(coltxt)))
             print('Adding to assumed glossary:', ', '.join(candidates))
-            ignore_col1.append(index)
+            ignore_col1.append(tab_index)
             poss_entries.extend(candidates)
     return poss_entries, ignore_col1
 
