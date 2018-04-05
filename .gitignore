@@ -2,3 +2,13 @@ build/
 dist/ 
 *.pyc 
 tests/ 
+.ipynb_checkpoints/Untitled-checkpoint.ipynb
+*.wpu
+*.whl
+*.zip
+temp.txt
+Untitled.html
+Untitled.ipynb
+Untitled.py
+Untitled.txt
+wizard.jpg
