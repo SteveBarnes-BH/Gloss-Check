@@ -2,11 +2,10 @@
 #coding:utf-8
 """
   Purpose: Find the candidates for the glossary in a word document.
-  Author: Steve Barnes --<StevenJohn.Barnes@ge.com>
-  Created: 13/03/2017.
-  Updated: 22/04/2017.
 
-  Find the candidates for the glossary in a word document.
+  Author: Steve Barnes --<Steven.Barnes@bhge.com>
+  Created: 13/03/2017.
+  Last Updated: 25/06/2018.
 """
 #(Inspired by python-docx <https://github.com/mikemaccana/python-docx> &
 #<http://etienned.github.io/posts/extract-text-from-word-docx-simply/>)

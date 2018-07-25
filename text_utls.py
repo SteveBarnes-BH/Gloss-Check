@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #coding:utf-8
 """
-  Author:  Steve Barnes --<StevenJohn.Barnes@ge.com>
+  Author:  Steve Barnes --<Steven.Barnes@bhge.com>
   Purpose: Utilties for the glossary checker
   Created: 11/04/2017
 """

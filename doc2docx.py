@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #encoding:utf-8
 """
-  Author:  Steve Barnes --<StevenJohn.Barnes@ge.com>
+  Author:  Steve Barnes --<Steven.Barnes@bhge.com>
   Purpose: Convert MS Word doc files to docx
   Created: 04/04/2017
 """

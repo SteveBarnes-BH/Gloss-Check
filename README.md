@@ -28,7 +28,7 @@ usage: gloss_check.py [-h] [-L {NONE,de_DE,en_AU,en_GB,en_US,fr_FR}]
                       [DOCS [DOCS ...]]
 
 Purpose: Find the candidates for the glossary in a word document. Author:
-Steve Barnes --<StevenJohn.Barnes@ge.com> Created: 13/03/2017. Updated:
+Steve Barnes --<Steven.Barnes@bhge.com> Created: 13/03/2017. Updated:
 21/04/2017. Find the candidates for the glossary in a word document.
 
 positional arguments:
