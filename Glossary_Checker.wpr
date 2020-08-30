@@ -1,7 +1,7 @@
 #!wing
-#!version=6.0
+#!version=7.0
 ##################################################################
-# Wing IDE project file                                          #
+# Wing project file                                              #
 ##################################################################
 [project attributes]
 debug.launch-configs = (2,
@@ -19,6 +19,36 @@ debug.launch-configs = (2,
                        '-u'),
          'runargs': u'',
          'rundir': ('project',
+                    u'')}),
+                         'launch-CgMV78JSnMI6zb4L': ({'shared': True},
+        {'buildcmd': ('project',
+                      None),
+         'env': ('project',
+                 [u'']),
+         'name': u'Python 2.7.x',
+         'pyexec': ('custom',
+                    u'c:\\Python27\\python.exe'),
+         'pypath': ('default',
+                    []),
+         'pyrunargs': ('project',
+                       ''),
+         'runargs': u'EGD SkipPassword Eng 172.16.1.116 ',
+         'rundir': ('project',
+                    u'')}),
+                         'launch-FDdd44Tgxy3Qluul': ({},
+        {'buildcmd': ('project',
+                      None),
+         'env': ('project',
+                 [u'']),
+         'name': 'py36',
+         'pyexec': ('custom',
+                    u'D:\\Users\\212303160\\AppData\\Local\\Programs\\Python\\Python36\\python.exe'),
+         'pypath': ('project',
+                    []),
+         'pyrunargs': ('project',
+                       '-u'),
+         'runargs': u'__init__.py',
+         'rundir': ('project',
                     u'')})})
 proj.directory-list = [{'dirloc': loc('.'),
                         'excludes': [u'dist',
@@ -34,6 +64,10 @@ proj.launch-config = {loc('args.py'): ('custom',
                       loc('doc2docx.py'): ('project',
         (u'D:\\Users\\212303160\\Documents\\UMD\\Release\\UMD_H\\S39503-300-00-350_G.doc',
          '')),
+                      loc('ep_demo1.py'): ('custom',
+        (u'',
+         'launch-FDdd44Tgxy3Qluul')),
                       loc('gc_gui.py'): ('project',
         (u'',
          'launch-CLfV26cPWKoCd1r8'))}
+proj.main-file = loc('gloss_check.py')

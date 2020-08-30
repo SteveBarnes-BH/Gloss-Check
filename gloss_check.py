@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #coding:utf-8
 """
   Purpose: Find the candidates for the glossary in a word document.
