@@ -1,0 +1,103 @@
+
+AIT	Assembly, Inspection and Test
+APCM	Advanced Powerline Copper Modem
+APCM APCMs	Adaptive Power Coupling Modem(s)
+API	Application Programming Interface
+APP	Application
+BH	Baker Hughes
+BH SEM Version 5
+BSP	Board Support Package
+CCR	Central Control Room
+CEM	Communications Electronic Module
+CENELEC	European Committee for Electrotechnical Standardization
+Config	Configuration
+DHCP	Dynamic Host Configuration Protocol
+DHPT	Down-hole Pressure & Temperature
+DHPT	Downhole Pressure & Temperature
+DISM	Downhole Instrumentation Support Module
+DISM	Down-hole Instrumentation Support Module
+DSL	Digital Subscriber Line
+DSM	Directional Solenoid Module
+EFAT	Extended Factory Acceptance Test
+EPCM	Electrical Power Control Module
+ePIMS	Electronic Product Information
+EPU	Electrical Power Unit
+ERM	Ethernet Router Module
+ETU	Engineering Test Unit
+EWS	Engineering Workstation
+FAT	Factory Acceptance Test
+Fieldbus	A specific serial protocol
+FPGA	Field Programmable Gate Array
+FSM	Fieldbus Support Module
+FTP	File Transfer Protocol
+Git	Version control system
+git	Version control system
+gz	GNU Zip compression
+ID	Identification
+IDE	Integrated Development Environment
+IP IPv4/6	Internet Protocol (Version 4/6)
+ISO	International Standards Organization
+ITS	Integrated Template Structure
+LAN	Local Area Network
+LCP	LAN Control Protocol
+localhost	Machine internal IP address
+Management System
+MC SMU	Multi-Channel Surface Modem Unit
+MCS	Master Control Station
+Modbus	Data Communications Protocol
+MPC	Motorola Power PC Chips
+MSI	Microsoft Installer File
+MSI	Microsoft Installer
+NTP	Network Time Protocol
+NTP	Network Time Server Protocol
+OS	Operating System
+PLEM	Pipeline End Manifold
+PMM	Pulse Mode Modulation
+ppk	Public Part Key
+PPP	Point to Point Protocol &/or Peer to Peer Protocol
+PPP ppp	Point to Point Protocol
+PuTTY	Communication Software
+QConn Qconn	QNX Remote Execution
+QNet	QNX Native Networking
+QNX	QNX Software Systems 
+QNX	QNXâ„¢ Software Systems (Real-time OS)
+Receiver-Transmitter
+RIP	Routing Information Protocol
+ROV	Remotely Operated Vehicle
+RSA rsa	Rivestâ€“Shamirâ€“Adleman
+RST	Reliability, Sustainability Test
+Rx	Receive
+SBC	Single Board Computer
+SCI	Subsea Communications Interface
+SCM	Subsea Control Module
+SCM SCMs	Subsea Control Module(s)
+SEM SEMs	Subsea Electronics Module(s)
+SemApp	SEM Application
+SemStar5 SEMSTAR5 SEMStar5	BH SEM Model 5
+shtml	Secure html
+SMU SMUs	Surface Modem Unit(s)
+SPM	Smart Plugin Module
+SPM SPMs	Smart Plug-in Module(s)
+SSH	Secure Shell
+SSM	Sensor Support Module
+tar	Tape Archive
+TCP	Transmission Control Protocol
+TCP	Transport Control Protocol
+Teamcenter	Replacement for ePIMS
+tsec	Network Port
+Tx	Transmit
+UART	Universal Asynchronous 
+UART	Universal Asynchronous Receiver-Transmitter
+UDP	User Datagram Protocol
+UMD	Umbilical Monitoring Device
+UMDC	UMD Control Software
+UPS	Uninterruptible Power Supply
+UUT	Unit Under Test
+VID	Vessel Identification
+VID	Vessel Identifier
+VLAN vlan	Virtual LAN
+www	World Wide Web
+XML	Extensible Markup Language
+XML	Extensible Mark-up Language
+YYYY	Year as 4 digits
+YYYYMMDD	ISO Format date 4-digit year 2-digit month 2-digit day

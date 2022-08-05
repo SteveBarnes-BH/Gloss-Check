@@ -1,0 +1,30 @@
+# Control git behaviour for this repository
+# Created Steve Barnes 12/12/2020
+# Copyright 2021.  Baker Hughes Energy Technology UK Limited.
+
+# Automatic EOL for mot text files
+*        text=auto
+# Files that we need to auto
+*.txt    text
+*.wpu....text
+
+# Files that must be Windows
+*.vcproj    text eol=crlf
+
+# Files that must be Linux/Unix
+*.sh    text eol=lf
+*.mk    text eol=lf
+makefile    text eol=lf
+*.yaml    text eol=lf
+*.py    text eol=lf
+*.py3    text eol=lf
+#.git*    text eol=lf
+
+# Non-text files, e.g.
+*.jpg    -text
+*.docx   -text
+*.xlsx   -text
+*.pptx   -text
+
+# This should allow substitutions in LAST_COMMIT on git archive operations.
+LAST_COMMIT   export-subst
