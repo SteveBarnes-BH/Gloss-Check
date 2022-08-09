@@ -54,16 +54,6 @@ repos:
         files: (.*\.py[w3]?)
         types_or: [python, python3, ]
 
--   repo: https://github.com/SemStar5-Product/SEM5_Realease_Tools
-    rev: V0.60.11
-    hooks:
-    -   id: resolve_check_msg_issues
-        always_run: true
-        stages: [prepare-commit-msg, commit-msg]
-    #-   id: check_copyright
-    #    always_run: true
-    #    stages: [commit]
-
 -   repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:
@@ -71,10 +61,3 @@ repos:
         stages: [commit]
         files: (.*\.py[w3]?)
         types: [python, ]
-
-#-   repo: meta
-#    hooks:
-    #-   id: check-hooks-apply
-    #    stages: [pre-commit]
-#    -   id: check-useless-excludes
-#        stages: [manual]
