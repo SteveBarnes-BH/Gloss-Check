@@ -214,7 +214,7 @@ if GUI_OK:
             """Add the options as selected from the command line arguments."""
             subsizer = wx.FlexGridSizer(0, 5, 0, 2)
             cb_style = wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.ALL
-            ctrl = wx.Button(self, -1, "Load Glossary")
+            ctrl = wx.Button(self, -1, "Load External Glossary")
             ctrl.SetToolTip(
                 wx.ToolTip(
                     "Select an existing glossary from text file(s) to ignore.\n"
