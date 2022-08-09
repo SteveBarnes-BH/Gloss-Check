@@ -114,12 +114,24 @@ if GUI_OK:
             t_ops = namedtuple('options', self.options.keys())
             options = t_ops(**self.options)
             glossary = text_utls.get_glossary(options)
-            self.window.write_text("%d Glossary Entries Read!\n" % len(glossary))
+            if options.glossary:
+                self.window.write_text(
+                    "%d Glossary Entries Read from %s!\n"
+                    % (len(glossary), options.glossary)
+                )
+            else:
+                self.window.write_text("No External Glossary!\n")
 
             for name in filenames:
                 self.window.write_text('\nProcessing %s!' % name)
-                success, candidates, unused = gloss_utils.get_candidates(
-                    name, extern_gloss=glossary, options=options)
+                (
+                    success,
+                    candidates,
+                    unused,
+                    gloss_len,
+                ) = gloss_utils.get_candidates(
+                    name, extern_gloss=glossary, options=options
+                )
                 if not success:
                     self.window.write_text(
                         " - ERROR: File is not supported or is corrupted/empty")
@@ -128,7 +140,8 @@ if GUI_OK:
                         options, " %d Candidate Entries:\n" % len(candidates), candidates)
                     if options.glossary_unused:
                         self.smart_write(
-                            options, '%d Unused Glossary Items:\n' % len(unused), unused)
+                            options, '\n\n%d Unused Glossary Items of %d:\n'
+                            % (len(unused), gloss_len), unused)
 
         def smart_write(self, options, title, items):
             """ Write the items based on the options."""

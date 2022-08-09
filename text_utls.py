@@ -75,6 +75,8 @@ def get_glossary(ops):
             print('   ', infile.name)
             ingloss.extend(tokenize(infile.read(), ops))
             infile.close()
+    else:
+        print("No External Glossary Specified")
     ingloss = clean_wordlist(ingloss)
     ingloss = get_candidates_from_list(ingloss, extern_gloss=[], options=ops)
     return ingloss

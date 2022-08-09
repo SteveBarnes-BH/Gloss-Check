@@ -96,7 +96,12 @@ def get_candidates(path, extern_gloss=None, options=None):
                 unused = [item for item in doc_gloss if not item in words]
             else:
                 unused = [item for item in extern_gloss if not item in words]
-    return (success, candiates, unused)
+    return (
+        success,
+        candiates,
+        unused,
+        len(doc_gloss),
+    )
 
 def process_docs(options, ext_gloss):
     """ Process the documents."""
@@ -110,7 +115,9 @@ def process_docs(options, ext_gloss):
             print("ERROR: No files match", arg)
         for filename in filelist:
             print('Processing', filename)
-            success, candidates, unused = get_candidates(filename, ext_gloss, options=options)
+            success, candidates, unused, gloss_len = get_candidates(
+                filename, ext_gloss, options=options
+            )
             if not success:
                 print("ERROR: File is not a supported format or is corrupted/empty")
             else:
