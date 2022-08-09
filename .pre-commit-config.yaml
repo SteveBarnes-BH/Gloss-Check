@@ -1,0 +1,80 @@
+
+# ############################################################################ #
+# Baker Hughes Energy Technology UK Limited Confidential                       #
+# [Unpublished] Copyright 2022.  Baker Hughes Energy Technology UK Limited.    #
+# NOTICE:  All information contained herein is, and remains the property of    #
+# Baker Hughes Energy Technology UK Limited, its suppliers, and affiliates, if #
+# any.                                                                         #
+# The intellectual and technical concepts contained herein are proprietary to  #
+# Baker Hughes Energy Technology UK Limited and its suppliers and affiliates   #
+# and may be covered by U.S. and Foreign Patents, patents in process, and are  #
+# protected by trade secret and copyright law.                                 #
+# Dissemination of this information or reproduction of this material is        #
+# strictly forbidden unless prior written permission is obtained from Baker    #
+# Hughes Energy Technology UK Limited.                                         #
+# ############################################################################ #
+
+
+# Configuration for pre-commit
+#See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+    -   id: trailing-whitespace
+        stages: [commit]
+    -   id: end-of-file-fixer
+        stages: [commit]
+    -   id: check-yaml
+        stages: [commit]
+    -   id: check-added-large-files
+        stages: [commit]
+    -   id: check-case-conflict
+        stages: [commit]
+    -   id: mixed-line-ending
+        stages: [commit]
+        types_or: [python, python3, makefile, c, c++]
+        args: [--fix=lf, ]
+    -   id: fix-byte-order-marker
+        stages: [commit]
+    -   id: check-json
+        stages: [commit]
+    -   id: detect-private-key
+        stages: [commit]
+    -   id: check-xml
+
+-   repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.3.0
+    hooks:
+    -   id: forbid-tabs
+        stages: [commit]
+        files: (.*\.py[w3]?)
+        types_or: [python, python3, ]
+
+-   repo: https://github.com/SemStar5-Product/SEM5_Realease_Tools
+    rev: V0.60.11
+    hooks:
+    -   id: resolve_check_msg_issues
+        always_run: true
+        stages: [prepare-commit-msg, commit-msg]
+    #-   id: check_copyright
+    #    always_run: true
+    #    stages: [commit]
+
+-   repo: https://github.com/psf/black
+    rev: 22.6.0
+    hooks:
+    -   id: black
+        stages: [commit]
+        files: (.*\.py[w3]?)
+        types: [python, ]
+
+#-   repo: meta
+#    hooks:
+    #-   id: check-hooks-apply
+    #    stages: [pre-commit]
+#    -   id: check-useless-excludes
+#        stages: [manual]
