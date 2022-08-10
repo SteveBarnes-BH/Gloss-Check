@@ -15,10 +15,17 @@ from collections import namedtuple
 import textwrap
 import time
 
-import text_utls
-import args
-import gloss_utils
-from version_info import __version__ as VERSION
+try:
+    import text_utls
+    import args
+    import gloss_utils
+    from version_info import __version__ as VERSION
+except ImportError:
+    from gloss_check import text_utls
+    from gloss_check import args
+    from gloss_check import gloss_utils
+    from gloss_check.version_info import __version__ as VERSION
+
 
 GUI_OK = False
 try:

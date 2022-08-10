@@ -22,10 +22,16 @@ try:
 except ImportError:
     textract = None
 
-import text_utls
-import docx2utils
-import xmltree_utils
-import doc2docx
+try:
+    import text_utls
+    import docx2utils
+    import xmltree_utils
+    import doc2docx
+except ImportError:
+    from gloss_check import text_utls
+    from gloss_check import docx2utils
+    from gloss_check import xmltree_utils
+    from gloss_check import doc2docx
 
 
 def get_textract_wordlist(path, minacc=1):

@@ -17,7 +17,10 @@ try:
 except ImportError:
     from xml.etree.ElementTree import XML
 
-import text_utls
+try:
+    import text_utls
+except ImportError:
+    from gloss_check import text_utls
 
 # Constants used to decode MS Word Open Document Format
 WRD_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"

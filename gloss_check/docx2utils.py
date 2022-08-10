@@ -16,7 +16,10 @@ try:
 except ImportError:
     docx = None
 
-import text_utls
+try:
+    import text_utls
+except ImportError:
+    from gloss_check import text_utls
 
 
 def get_docx2_wordlist(path, options):

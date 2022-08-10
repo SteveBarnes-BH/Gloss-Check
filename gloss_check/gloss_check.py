@@ -13,11 +13,18 @@ from __future__ import print_function
 import sys
 import argparse
 
-import text_utls
-import version_info
-import args
-from gc_gui import GUI_OK, start_gui
-import gloss_utils
+try:
+    import text_utls
+    import version_info
+    import args
+    from gc_gui import GUI_OK, start_gui
+    import gloss_utils
+except ImportError:
+    from gloss_check import text_utls
+    from gloss_check import version_info
+    from gloss_check import args
+    from gloss_check.gc_gui import GUI_OK, start_gui
+    from gloss_check import gloss_utils
 
 
 def parse_args():
