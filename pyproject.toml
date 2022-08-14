@@ -1,0 +1,47 @@
+[project]
+name = "Glossary_Checker"
+description = "Glossary Checker!"
+authors = [{name = "Steve Barnes", email = "Steven.Barnes@bakerhughes.com"},]
+license = {text = "Baker-Hughes Internal"}
+requires-python = ">=3.8"
+dependencies = [
+    "altgraph==0.17.2",
+    "appdirs==1.4.4",
+    "cx-Freeze==6.11.1",
+    "cx-Logging==3.0",
+    "future==0.18.2",
+    "importlib-metadata==4.12.0",
+    "lief==0.12.1",
+    "lxml==4.9.1",
+    "numpy==1.23.1",
+    "packaging==21.3",
+    "pefile==2022.5.30",
+    "Pillow==9.2.0",
+    "pyenchant>=3.2.2",
+    "pyinstaller==5.3",
+    "pyinstaller-hooks-contrib==2022.8",
+    "pyparsing==3.0.9",
+    "python-docx==0.8.11",
+    "pywin32==304; platform_system=='Windows'",
+    "pywin32-ctypes==0.2.0; platform_system=='Windows'",
+    "semantic-version==2.10.0",
+    "six==1.16.0",
+    "win-unicode-console==0.5",
+    "wxPython==4.1.1",
+    "zipp==3.8.1",
+    "setuptools_scm>7.0.0",
+]
+dynamic =["version" ]
+
+[build-system]
+requires = [
+    "setuptools>=45", "setuptools_scm[toml]>=6.2",
+    "wheel>0.37.0"]
+build-backend = "setuptools.build_meta"
+
+# pyproject.toml
+[tool.setuptools_scm]
+root = "."
+
+[tool.setuptools.packages]
+find = {}

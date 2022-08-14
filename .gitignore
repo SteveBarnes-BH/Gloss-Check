@@ -14,3 +14,5 @@ Untitled.txt
 wizard.jpg
 .eggs/
 gloss_check/_version.py
+*.egg-info
+_version.txt
