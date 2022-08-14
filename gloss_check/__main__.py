@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # coding:utf-8
 """
-  Purpose: Find the candidates for the glossary in a word document.
+Purpose: Find the candidates for the glossary in a word document.
 
-  Author: Steve Barnes --<Steven.Barnes@bhge.com>
-  Created: 13/03/2017.
-  Last Updated: 25/06/2018.
+Author: Steve Barnes --<Steven.Barnes@bhge.com>
+Created: 13/03/2017.
+Last Updated: 12/08/2022.
 """
 # (Inspired by python-docx <https://github.com/mikemaccana/python-docx> &
 # <http://etienned.github.io/posts/extract-text-from-word-docx-simply/>)
@@ -13,11 +13,19 @@ from __future__ import print_function
 import sys
 import argparse
 
-import text_utls
-import version_info
-import args
-from gc_gui import GUI_OK, start_gui
-import gloss_utils
+# Local Imports
+try:
+    import text_utls
+    import version_info
+    import args
+    from gc_gui import GUI_OK, start_gui
+    import gloss_utils
+except ImportError:
+    from gloss_check import text_utls
+    from gloss_check import version_info
+    from gloss_check import args
+    from gloss_check.gc_gui import GUI_OK, start_gui
+    from gloss_check import gloss_utils
 
 
 def parse_args():

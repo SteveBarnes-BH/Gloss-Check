@@ -12,9 +12,12 @@ import sys
 
 # Library Imports
 from cx_Freeze import setup, Executable
+import setuptools_scm
 
 # Local Imports
 
+# Create the version information file
+setuptools_scm.get_version(".", write_to="gloss_check/_version.py")
 
 # Dependencies are automatically detected, but it might need fine tuning.
 # "packages": ["os"] is used as example only
@@ -40,9 +43,23 @@ setup(
     # This section is to trigger the use of setuptools_scm to automate version numbers.
     use_scm_version=True,
     setup_requires=[
+        "wheel",
         "setuptools_scm",
     ],
-    description="My GUI application!",
+    description="Glossary Checker!",
     options={"build_exe": build_exe_options},
-    executables=[Executable("gloss_check/gc_gui.py", base=base)],
+    executables=[
+        Executable(
+            "gloss_check/__main__.py",
+            target_name="Gloss-Check",
+            base=None,
+            icon="Gloss_Check.ico",
+        ),
+        Executable(
+            "gloss_check/gc_gui.py",
+            target_name="Gloss-Check-Gui",
+            base=base,
+            icon="Gloss_Check.ico",
+        ),
+    ],
 )

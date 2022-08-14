@@ -11,6 +11,7 @@ from __future__ import (
 
 import sys
 
+
 try:
     import wx
 except ImportError:
@@ -29,7 +30,22 @@ try:
 except ImportError:
     textract = None
 
-__version__ = "v1.1.2"
+try:
+    from _version import __version__
+except ImportError:
+    try:
+        from gloss_check._version import __version__
+    except ImportError:
+        print(
+            "Can't get version information\nUse: \n"
+            "python -c\"import setuptools_scm;setuptools_scm.get_version('.', write_to='gloss_check/_version.py')\""
+            "\nto fix!"
+        )
+        __version__ = version("gloss_check")  # "0.0.0.NoVersion"
+
+
+# __version__ = "v1.1.2"  # "v" +
+# setuptools_scm.get_version(root="..")
 
 
 def get_version_info():
@@ -51,8 +67,10 @@ def get_version_info():
         version_info.append(
             "Using: python-docx %s for .DOCX parsing" % docx.__version__
         )
-    if textract is not None:
-        version_info.append("Using: Textract!")
+    if textract is None:
+        pass
+    else:
+        version_info.append(f"Using: Textract {textract.VERSION}")
     return version_info
 
 

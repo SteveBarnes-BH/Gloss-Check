@@ -1,7 +1,7 @@
-build/ 
-dist/ 
-*.pyc 
-tests/ 
+build/
+dist/
+*.pyc
+tests/
 .ipynb_checkpoints/Untitled-checkpoint.ipynb
 *.wpu
 *.whl
@@ -12,3 +12,5 @@ Untitled.ipynb
 Untitled.py
 Untitled.txt
 wizard.jpg
+.eggs/
+gloss_check/_version.py

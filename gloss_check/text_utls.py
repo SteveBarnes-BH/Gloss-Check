@@ -5,9 +5,6 @@
   Purpose: Utilties for the glossary checker
   Created: 11/04/2017
 """
-from __future__ import (
-    print_function,
-)
 
 import sys
 import textwrap

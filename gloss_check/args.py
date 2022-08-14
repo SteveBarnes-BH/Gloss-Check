@@ -5,9 +5,6 @@
   Purpose: Arguments for the glossary checker.
   Created: 17/04/2017
 """
-from __future__ import (
-    print_function,
-)
 import os
 import argparse
 import json
