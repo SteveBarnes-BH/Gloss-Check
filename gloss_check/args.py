@@ -148,6 +148,17 @@ if etock is not None:
         ),
     )
 
+
+def limited_int(val: int) -> int:
+    """Int with limited range."""
+    minval = 0
+    maxval = 20
+    x = int(val)
+    if x < minval or x > maxval:
+        raise argparse.ArgumentTypeError(f"Value must be {minval}..{maxval}")
+    return x
+
+
 CL_ARGS = [  # Items that only apply to the command line version.
     (
         ["-G", "-g", "--glossary"],
@@ -156,6 +167,28 @@ CL_ARGS = [  # Items that only apply to the command line version.
             "type": argparse.FileType("r"),
             "savecfg": False,
             "help": "An existing glossary to ignore",
+        },
+    ),
+    (
+        ["-Fm", "--fail-missing-count"],
+        {
+            "type": limited_int,
+            "action": "store",
+            "dest": "fail_missing_count",
+            "default": 0,
+            "savecfg": True,
+            "help": "Give a fail result if this number, or more, undefined items are found. 0 disables",
+        },
+    ),
+    (
+        ["-Fu", "--fail-unused-count"],
+        {
+            "type": limited_int,
+            "action": "store",
+            "dest": "fail_unused_count",
+            "default": 0,
+            "savecfg": True,
+            "help": "Give a fail result if this number, or more, defined items are not found. 0 disables",
         },
     ),
     (

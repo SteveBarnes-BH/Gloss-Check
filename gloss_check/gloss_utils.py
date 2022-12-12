@@ -8,7 +8,7 @@
 from __future__ import (
     print_function,
 )
-
+import sys
 import os
 import glob
 import tempfile
@@ -120,6 +120,7 @@ def get_candidates(path, extern_gloss=None, options=None):
 
 def process_docs(options, ext_gloss):
     """Process the documents."""
+    errors = []
     for arg in options.DOCS:
         print("Document/Wildcard:", arg)
         if os.path.isfile(arg):
@@ -136,13 +137,31 @@ def process_docs(options, ext_gloss):
                 filename, ext_gloss, options=options
             )
             if not success:
-                print("ERROR: File is not a supported format or is corrupted/empty")
+                errors.append(
+                    f"ERROR: File {filename} is not a supported format or is corrupted/empty"
+                )
             else:
                 print("%d Candidates:" % len(candidates))
                 text_utls.smart_print(options, candidates)
                 if options.glossary_unused:
                     print("Possible Unused Glossary Enties:")
                     text_utls.smart_print(options, unused)
+                if (
+                    options.fail_missing_count
+                    and len(candidates) >= options.fail_missing_count
+                ):
+                    errors.append(
+                        f"{len(candidates)} Undefined items > permitted in {filename}"
+                    )
+                if (
+                    options.fail_unused_count
+                    and len(unused) >= options.fail_unused_count
+                ):
+                    errors.append(
+                        f"{len(unused)} Unused items > {options.fail_unused_count} permitted in {filename}"
+                    )
+        if errors:
+            sys.exit("FAIL!\n" + "\n".join(errors))
 
 
 if __name__ == "__main__":

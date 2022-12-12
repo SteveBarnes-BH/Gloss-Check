@@ -41,7 +41,8 @@ except ImportError:
             "python -c\"import setuptools_scm;setuptools_scm.get_version('.', write_to='gloss_check/_version.py')\""
             "\nto fix!"
         )
-        __version__ = version("gloss_check")  # "0.0.0.NoVersion"
+        # __version__ = version("gloss_check")
+        __version__ = "0.0.0.NoVersion"
 
 
 # __version__ = "v1.1.2"  # "v" +
