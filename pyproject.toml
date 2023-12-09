@@ -18,7 +18,7 @@ dependencies = [
     "pefile==2022.5.30",
     "Pillow==9.2.0",
     "pyenchant>=3.2.2",
-    "pyinstaller==5.3",
+    "pyinstaller==5.13.1",
     "pyinstaller-hooks-contrib==2022.8",
     "pyparsing==3.0.9",
     "python-docx==0.8.11",
